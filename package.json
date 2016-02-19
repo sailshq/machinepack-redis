@@ -10,10 +10,11 @@
     "machines",
     "machinepack"
   ],
-  "author": "",
+  "author": "The Treeline Company",
   "license": "MIT",
-  "dependencies":{
-    "machine": "^3.0.0"
+  "dependencies": {
+    "machine": "~12.0.0",
+    "redis": "~0.12.0"
   },
   "devDependencies": {
     "test-machinepack-mocha": "^0.2.2"
@@ -21,6 +22,9 @@
   "machinepack": {
     "friendlyName": "Redis",
     "machineDir": "machines/",
-    "machines": []
+    "machines": [
+      "get-connection",
+      "release-connection"
+    ]
   }
 }
