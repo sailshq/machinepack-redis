@@ -116,7 +116,22 @@ module.exports = {
     }
 
     // Create Redis client
-    var client = redis.createClient(inputs.connectionString, redisClientOptions);
+    var client;
+    try {
+      client = redis.createClient(inputs.connectionString, redisClientOptions);
+    }
+    catch (e) {
+      // If a "TypeError" was thrown, it means something was wrong with
+      // one of the provided client options.  We assume the issue was with
+      // the connection string, since this is the case 99% of the time.
+      // Of course, the actual error is passed through, so it's possible to
+      // tell what's going on if this is a data-type error related to some
+      // other custom option passed in via `meta`.
+      if (e.name === 'TypeError') {
+        return exits.malformed({ error: e });
+      }
+      return exits.error(e);
+    }
 
     ////////////////////////////////////////////////////////////////////////
     // These two functions (`onPreConnectionError`, `onPreConnectionEnd`)
@@ -125,15 +140,7 @@ module.exports = {
     // the second argument to `removeListener()`)
     var redisConnectionError;
     function onPreConnectionError (err){
-      if (!err) {
-        redisConnectionError = new Error('Redis client fired "error" event before it finished connecting.');
-      }
-      else {
-        err.message =
-        'Redis client fired "error" event before it finished connecting: '+
-        err.message;
-        redisConnectionError = err;
-      }
+      redisConnectionError = err;
     }
     function onPreConnectionEnd(){
       client.removeListener('end', onPreConnectionEnd);
@@ -168,7 +175,7 @@ module.exports = {
       client.on('error', function onIntraConnectionError(err){
         if (err) {
           if (/ECONNREFUSED/g.test(err)) {
-            console.warn('Warning: Error emitted from Redis client: Connection to Redis server was lost (ECONNREFUSED). Waiting for Redis client to come back online. Currently there are %d underlying Redis connections:', client.connections.length, client.connections);
+            console.warn('Warning: Error emitted from Redis client: Connection to Redis server was lost (ECONNREFUSED). Waiting for Redis client to come back online (if configured to do so, auto-reconnecting behavior is happening in the background). Currently there are %d underlying Redis connections.', client.connections);
           }
           else {
             console.warn('Warning: Error emitted from Redis client. Error details:',err);
