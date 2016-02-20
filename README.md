@@ -65,32 +65,42 @@ Redis.getConnection({
 
     console.log('CONNECTED!');
 
-
+    // Now you can use the connection however you like!
+    //
     // To use the connection:
     // `report.connection`
-
-
-    // This just keeps the process going.
-    // console.log('mmk.');
-    // setInterval(function (){
-    //   console.log('still goin mmmmhhhmm');
-    // }, 1000);
-
-    // To release the connection:
-    setTimeout(function (){
-      Redis.releaseConnection({
-        connection: report.connection
-      }).exec({
-        error: function (err){
-          console.error('UNEXPECTED ERROR:',err);
-        },
-        success: function (report){
-          console.log('Connection released.');
-        }
+    var redisClient = report.connection;
+    //
+    // See http://www.sitepoint.com/using-redis-node-js/ for more, but as a quick example:
+    redisClient.set('stuff', 'things', function(err, reply) {
+      // If "SET" failed...
+      if (err) {
+        // Handle failed "SET"
+        // ...
+        console.error('SET failed:',err);
+        
+        // Always release the connection when finished:
+        Redis.releaseConnection({ connection: redisClient }).exec({
+          error: function (err){ console.error('UNEXPECTED ERROR:',err); },
+          success: function (report){ console.log('Connection released.'); }
+        });
+        return;
+      }
+    
+      // Otherwise "SET" was successful.
+      
+      // Do stuff
+      console.log('mmk set that.');
+      // ....
+      
+      // Always release the connection when finished:
+      Redis.releaseConnection({ connection: redisClient }).exec({
+        error: function (err){ console.error('UNEXPECTED ERROR:',err); },
+        success: function (report){ console.log('Connection released.'); }
       });
-    }, 7000);
+    });//</client.set
   }
-});
+});//</Redis.getConnection>
 ```
 
 
