@@ -68,7 +68,13 @@ module.exports = {
     // Release connection.
     try {
       inputs.connection.end(true);
-      inputs.connection.removeAllListeners();
+
+      // If necessary, we could also do the following here:
+      // inputs.connection.removeAllListeners();
+      //
+      // (but not starting off that way because it could cause crashing
+      //  of the process if our `redis` dep decides to emit any "error"
+      //  events.)
     }
     catch (e) {
       return exits.error(e);

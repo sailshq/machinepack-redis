@@ -77,6 +77,7 @@ module.exports = {
 
 
   fn: function (inputs, exits) {
+    var util = require('util');
     var Url = require('url');
     var redis = require('redis');
 
@@ -85,8 +86,9 @@ module.exports = {
       Url.parse(inputs.connectionString);
     }
     catch (e) {
-      e.message = 'Provided value (`'+inputs.connectionString+'`) is not a valid Redis connection string.';
-      e.stack = e.message+'  '+e.stack;
+      e.message =
+      'Provided value (`'+inputs.connectionString+'`) is not a valid Redis connection string: '+
+      e.message;
       return exits.malformed({
         error: e
       });
@@ -116,49 +118,46 @@ module.exports = {
     // Create Redis client
     var client = redis.createClient(inputs.connectionString, redisClientOptions);
 
-    // ** * * ** ** THIS MAY NOT BE NECESSARY * ** *** ****
-    //  (that's why it's commented out)
-    // ** * * ** **  **********************   * ** *** ****
-    // If a password was provided, authenticate with it.
-    // if (config.password) {
-    //   client.auth(config.password);
-    // }
-    // ** * * ** **  **********************   * ** *** ****
+    ////////////////////////////////////////////////////////////////////////
+    // These two functions (`onPreConnectionError`, `onPreConnectionEnd`)
+    // have to be defined ahead of time (otherwise, they are not in scope
+    // from within each other's implementations; and so cannot be used as
+    // the second argument to `removeListener()`)
+    var redisConnectionError;
+    function onPreConnectionError (err){
+      if (!err) {
+        redisConnectionError = new Error('Redis client fired "error" event before it finished connecting.');
+      }
+      else {
+        err.message =
+        'Redis client fired "error" event before it finished connecting: '+
+        err.message;
+        redisConnectionError = err;
+      }
+    }
+    function onPreConnectionEnd(){
+      client.removeListener('end', onPreConnectionEnd);
+      client.removeListener('error', onPreConnectionError);
+
+      // Prevent automatic reconnection attempts.
+      client.end(true);
+
+      return exits.failedToConnect({
+        error: redisConnectionError || new Error('Redis client fired "end" event before it finished connecting.')
+      });
+    }
+    ////////////////////////////////////////////////////////////////////////
 
     // Bind an "error" listener so that we can track errors that occur
     // during the connection process.
-    client.once('error', function onPreConnectionError (err){
-      client.removeListener('end', onPreConnectionEnd);
-      client.removeListener('error', onPreConnectionError);
-
-      return exits.failedToConnect({
-        error: err || new Error('Redis client fired "error" event before it finished connecting.')
-      });
-    });
+    client.on('error', onPreConnectionError);
 
     // Bind an "end" listener in case the client "ends" before
     // it successfully connects...
-    client.once('end', function onPreConnectionEnd(){
-      client.removeListener('end', onPreConnectionEnd);
-      client.removeListener('error', onPreConnectionError);
-
-      return exits.failedToConnect({
-        error: new Error('Redis client fired "end" event before it finished connecting.')
-      });
-    });
+    client.on('end', onPreConnectionEnd);
 
     // Bind a "ready" listener so that we know when the client has connected.
-    client.once('ready', function (){
-
-      // ** * * ** ** THIS MAY NOT BE NECESSARY * ** *** ****
-      //  (that's why it's commented out)
-      // ** * * ** **  **********************   * ** *** ****
-      // If the name of a particular Redis database was specified, "select" it.
-      // if ( !util.isUndefined(redisDatabaseName) ) {
-      //   client.select(redisDatabaseName);
-      // }
-      // ** * * ** **  **********************   * ** *** ****
-
+    client.once('ready', function onConnectionReady(){
       client.removeListener('end', onPreConnectionEnd);
       client.removeListener('error', onPreConnectionError);
 
@@ -166,7 +165,7 @@ module.exports = {
       // are emitted later on (e.g. if the Redis server crashes or the connection
       // is lost for any other reason).
       // See https://github.com/mikermcneil/waterline-query-builder/blob/master/docs/errors.md#when-a-connection-is-interrupted
-      client.on('error', function (err){
+      client.on('error', function onIntraConnectionError(err){
         if (err) {
           if (/ECONNREFUSED/g.test(err)) {
             console.warn('Warning: Error emitted from Redis client: Connection to Redis server was lost (ECONNREFUSED). Waiting for Redis client to come back online. Currently there are %d underlying Redis connections:', client.connections.length, client.connections);

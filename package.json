@@ -14,7 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "machine": "~12.0.0",
-    "redis": "0.12.1"
+    "redis": "2.4.2"
   },
   "devDependencies": {
     "test-machinepack-mocha": "^0.2.2"
@@ -26,6 +26,8 @@
       "get-connection",
       "release-connection"
     ],
-    "interfaces": ["driveable"]
+    "interfaces": [
+      "driveable"
+    ]
   }
 }
