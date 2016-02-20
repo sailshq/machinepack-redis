@@ -17,15 +17,15 @@ module.exports = {
 
     connectionString: {
       description: 'A string containing all metadata and credentials necessary for connecting to the database.',
-      moreInfoUrl: 'https://github.com/mikermcneil/machinepack-redis',
-      example: 'redis://:secrets@example.com:1234/9',
+      example: 'redis://127.0.0.1:6379',
       required: true
     },
 
     meta: {
       friendlyName: 'Meta (custom)',
       description: 'Additional Redis-specific options to use when connecting.',
-      moreInfoUrl: 'https://github.com/mikermcneil/machinepack-redis',
+      extendedDescription: 'If specified, should be a dictionary.',
+      moreInfoUrl: 'https://github.com/NodeRedis/node_redis#options-is-an-object-with-the-following-possible-properties',
       example: '==='
     }
 
@@ -105,14 +105,7 @@ module.exports = {
       if ( !util.isObject(inputs.meta) ) {
         return exits.error('If provided, `meta` must be a dictionary.');
       }
-      else if ( inputs.meta.redisClientOptions ) {
-        if ( !util.isObject(inputs.meta.redisClientOptions) ) {
-          return exits.error('If provided, `meta.redisClientOptions` must be a dictionary.');
-        }
-        else {
-          redisClientOptions = inputs.meta.redisClientOptions;
-        }
-      }
+      redisClientOptions = inputs.meta;
     }
 
     // Create Redis client
