@@ -42,6 +42,7 @@ For the latest usage documentation, version information, and test status of this
 > ```
 
 
+
 ```javascript
 /**
  * Module dependencies
@@ -49,23 +50,21 @@ For the latest usage documentation, version information, and test status of this
 var Redis = require('machinepack-redis');
 
 
-Redis.getConnection({
+Redis.createManager({
   connectionString: 'redis://127.0.0.1:6379',
-}).exec({
-  error: function (err){
-    console.error('UNEXPECTED ERROR:',err);
-  },
-  malformed: function (report){
-    console.error('MALFORMED CONNECTION STRING:',report.error);
-  },
-  failedToConnect: function (report) {
-    console.error('FAILED TO CONNECT:',report.error);
-  },
-  success: function (report){
+  onUnexpectedFailure: function (err){ console.warn('WARNING: unexpected failure.  Details:',err); }
+}).exec(function (err, report) {
+  if (err) { console.error('UNEXPECTED ERROR:',err); return; }
+  var mgr = report.manager;
+
+  Pack.getConnection({
+    manager: mgr
+  }).exec(function (err, report) {
+    if (err) { console.error('UNEXPECTED ERROR:',err); return; }
 
     console.log('CONNECTED!');
 
-    // Now you can use the connection however you like!
+    // Now you can use the redis client however you like!
     //
     // To use the connection:
     // `report.connection`
@@ -93,14 +92,21 @@ Redis.getConnection({
       console.log('mmk set that.');
       // ....
       
-      // Always release the connection when finished:
-      Redis.releaseConnection({ connection: redisClient }).exec({
-        error: function (err){ console.error('UNEXPECTED ERROR:',err); },
-        success: function (report){ console.log('Connection released.'); }
-      });
-    });//</client.set
-  }
-});//</Redis.getConnection>
+      // Release the connection when finished:
+      // (note that you can skip this step and just destroy the manager if you wish)
+      Redis.releaseConnection({ connection: redisClient }).exec(function(err) {
+        if (err) { console.error('UNEXPECTED ERROR:',err); return; }
+        console.log('Connection released.');
+        
+        // But ALWAYS destroy the connection manager when finished
+        Redis.destroyManager({ manager: mgr }).exec(function(err) {
+          if (err) { console.error('UNEXPECTED ERROR:',err); return; }
+          console.log('Done. (Manager destroyed)');
+        });//</Redis.destroyManager>
+      });//</Redis.releaseConnection>
+    });//</client.set>
+  });//</Redis.getConnection>
+});//</Redis.createManager>
 ```
 
 
