@@ -23,6 +23,8 @@
     "friendlyName": "Redis",
     "machineDir": "machines/",
     "machines": [
+      "create-manager",
+      "destroy-manager",
       "get-connection",
       "release-connection"
     ],

@@ -7,25 +7,25 @@ module.exports = {
   description: 'Get an active connection to Redis.',
 
 
-  extendedDescription: 'This may involve opening a new connection, or aquiring an already-open connection from an existing pool.  The implementation is left up to the driver.',
-
-
-  moreInfoUrl: 'https://github.com/NodeRedis/node_redis#rediscreateclient',
-
-
   inputs: {
 
-    connectionString: {
-      description: 'A string containing all metadata and credentials necessary for connecting to the database.',
-      example: 'redis://127.0.0.1:6379',
+     manager: {
+      friendlyName: 'Manager',
+      description: 'The connection manager instance to acquire the connection from.',
+      extendedDescription:
+        'Only managers built using the `createManager()` method of this driver are supported. '+
+        'Also, the database connection manager instance provided must not have been destroyed--'+
+        'i.e. once `destroyManager()` is called on a manager, no more connections can be acquired '+
+        'from it (also note that all existing connections become inactive-- see `destroyManager()` '+
+        'for more on that).',
+      example: '===',
       required: true
     },
 
     meta: {
       friendlyName: 'Meta (custom)',
-      description: 'Additional Redis-specific options to use when connecting.',
-      extendedDescription: 'If specified, should be a dictionary.',
-      moreInfoUrl: 'https://github.com/NodeRedis/node_redis#options-is-an-object-with-the-following-possible-properties',
+      description: 'Additional stuff to pass to the driver.',
+      extendedDescription: 'This is reserved for custom driver-specific extensions.  Please refer to the documentation for the driver you are using for more specific information.',
       example: '==='
     }
 
@@ -45,19 +45,8 @@ module.exports = {
       }
     },
 
-    malformed: {
-      description: 'The provided connection string is malformed (the driver DID NOT ATTEMPT to acquire a connection).',
-      extendedDescription: 'The format of connection strings varies across different databases and their drivers.  This exit indicates that the provided string is not valid as per the custom rules of this driver.',
-      outputVariableName: 'report',
-      outputDescription: 'The `error` property is a JavaScript Error instance explaining that (and preferably "why") the provided connection string is invalid.  The `meta` property is reserved for custom driver-specific extensions.',
-      example: {
-        error: '===',
-        meta: '==='
-      }
-    },
-
-    failedToConnect: {
-      description: 'Could not acquire a connection to the database using the specified connection string.',
+    failed: {
+      description: 'Could not acquire a connection to the database using the specified manager.',
       extendedDescription: 'This might mean any of the following:\n'+
       ' + the credentials encoded in the connection string are incorrect\n'+
       ' + there is no database server running at the provided host (i.e. even if it is just that the database process needs to be started)\n'+
@@ -78,40 +67,20 @@ module.exports = {
 
   fn: function (inputs, exits) {
     var util = require('util');
-    var Url = require('url');
     var redis = require('redis');
-
-    // Validate connection string (call `malformed` if invalid).
-    try {
-      Url.parse(inputs.connectionString);
-    }
-    catch (e) {
-      e.message =
-      'Provided value (`'+inputs.connectionString+'`) is not a valid Redis connection string: '+
-      e.message;
-      return exits.malformed({
-        error: e
-      });
-    }
 
     // Build a local variable (`redisClientOptions`) to house a dictionary
     // of additional Redis client options that will be passed into createClient().
-    // (this is pulled from the `meta` input)
+    // (this is pulled from the `meta` maanger)
     //
     // For a complete list of available options, see:
     //  • https://github.com/NodeRedis/node_redis#options-is-an-object-with-the-following-possible-properties
-    var redisClientOptions = {};
-    if ( !util.isUndefined(inputs.meta) ) {
-      if ( !util.isObject(inputs.meta) ) {
-        return exits.error('If provided, `meta` must be a dictionary.');
-      }
-      redisClientOptions = inputs.meta;
-    }
+    var redisClientOptions = inputs.manager.meta || undefined;
 
     // Create Redis client
     var client;
     try {
-      client = redis.createClient(inputs.connectionString, redisClientOptions);
+      client = redis.createClient(inputs.manager.connectionString, redisClientOptions);
     }
     catch (e) {
       // If a "TypeError" was thrown, it means something was wrong with
@@ -121,9 +90,9 @@ module.exports = {
       // tell what's going on if this is a data-type error related to some
       // other custom option passed in via `meta`.
       if (e.name === 'TypeError') {
-        return exits.malformed({ error: e });
+        return exits.failed({ error: new Error('Invalid Redis client options in manager. Details: '+e.stack) });
       }
-      return exits.error(e);
+      return exits.failed({ error: e });
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -142,7 +111,7 @@ module.exports = {
       // Prevent automatic reconnection attempts.
       client.end(true);
 
-      return exits.failedToConnect({
+      return exits.failed({
         error: redisConnectionError || new Error('Redis client fired "end" event before it finished connecting.')
       });
     }
@@ -166,18 +135,37 @@ module.exports = {
       // is lost for any other reason).
       // See https://github.com/mikermcneil/waterline-query-builder/blob/master/docs/errors.md#when-a-connection-is-interrupted
       client.on('error', function onIntraConnectionError(err){
+        // If manager was not provisioned with an `onUnexpectedFailure`,
+        // we'll just handle this error event silently (to prevent crashing).
+        if (!util.isFunction(inputs.manager.onUnexpectedFailure)) { return; }
+
         if (err) {
           if (/ECONNREFUSED/g.test(err)) {
-            console.warn('Warning: Error emitted from Redis client: Connection to Redis server was lost (ECONNREFUSED). Waiting for Redis client to come back online (if configured to do so, auto-reconnecting behavior is happening in the background). Currently there are %d underlying Redis connections.', client.connections);
+            inputs.manager.onUnexpectedFailure(new Error(
+              'Error emitted from Redis client: Connection to Redis server was lost (ECONNREFUSED). '+
+              'Waiting for Redis client to come back online (if configured to do so, auto-reconnecting behavior '+
+              'is happening in the background). Currently there are '+client.connections+' underlying Redis connections.\n'+
+              'Error details:'+err.stack
+            ));
           }
           else {
-            console.warn('Warning: Error emitted from Redis client. Error details:',err);
+            inputs.manager.onUnexpectedFailure(new Error('Error emitted from Redis client.\nError details:'+err.stack));
           }
         }
         else {
-          console.warn('Warning: Error emitted from Redis client. (no other information available)');
+          inputs.manager.onUnexpectedFailure(new Error('Error emitted from Redis client.\n (no other information available)'));
         }
       });
+
+      // Now track this Redis client as one of the "redisClients" on our manager
+      // (since we want to be able to call destroyManager to wipe them all)
+      inputs.manager.redisClients.push(client);
+
+      // Save a reference to our manager instance on the redis client.
+      if (client._fromWLManager){
+        return exits.error('Consistency violation: Somehow, a `_fromWLManager` key already exists on this Redis client instance!');
+      }
+      client._fromWLManager = inputs.manager;
 
       // Finally, send back the Redis client as our active "connection".
       return exits.success({
