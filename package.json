@@ -13,6 +13,7 @@
   "author": "The Treeline Company",
   "license": "MIT",
   "dependencies": {
+    "async": "1.5.2",
     "machine": "~12.0.0",
     "redis": "2.4.2"
   },
