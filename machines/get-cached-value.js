@@ -80,9 +80,14 @@ module.exports = {
 
 
     // Run a "GET".
-    // TODO (replace setTimeout)
+    // TODO (replace setTimeout and `var foundValue`)
     setTimeout(function(){
       var foundValue;
+      ///////////////////////////////////////////////////////////////////////////
+      ///Temporary/Fake:
+      global.stuff = global.stuff || {};
+      foundValue = global.stuff[inputs.key];
+      ///////////////////////////////////////////////////////////////////////////
 
       // If NOTHING is found...
       //

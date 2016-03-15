@@ -92,8 +92,16 @@ module.exports = {
     // but probably not a good idea right now.
     inputs.value = JSON.stringify(inputs.value);
 
-    // TODO: run a "SET" and call exits.success().
-    return exits.error(new Error('TODO'));
+    // Run a "SET" to store it.
+    // TODO
+    ///////////////////////////////////////////////////////////////////////////
+    ///Temporary/Fake:
+    global.stuff = global.stuff || {};
+    global.stuff[inputs.key]=inputs.value;
+    ///////////////////////////////////////////////////////////////////////////
+
+    // Then we're done.
+    return exits.success();
   },
 
 
