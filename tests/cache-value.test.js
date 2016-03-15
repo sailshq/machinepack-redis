@@ -31,17 +31,17 @@ describe('cacheValue()', function (){
       connectionString: 'redis://127.0.0.1:6379'
     }).exec({
       error: done,
-      success: function (_mgr){
+      success: function (report){
         // Save reference to manager.
-        manager = _mgr;
+        manager = report.manager;
 
         Pack.getConnection({
           manager: manager
         }).exec({
           error: done,
-          success: function (_conn){
+          success: function (report){
             // Save reference to connection.
-            connection = _conn;
+            connection = report.connection;
             return done();
           }
         });
@@ -66,35 +66,25 @@ describe('cacheValue()', function (){
     });//</it should work>
 
 
-    it('should properly store things', function (done){
+    it('should properly store a string value', function (done){
+      shouldProperlyStoreValue({
+        valueToStore: 'hello world',
+        connection: connection
+      }, done);
+    });//</it should properly a string value>
 
-      var VAL_TO_STORE = [{
-        bar: 23,
-        baz: 'agadsg'
-      }];
 
-      Pack.cacheValue({
-        connection: connection,
-        key: 'test2',
-        value: VAL_TO_STORE
-      }).exec({
-        error: done,
-        success: function (){
-          Pack.getCachedValue({
-            connection: connection,
-            key: 'test2'
-          }).exec({
-            error: done,
-            success: function (foundValue){
-              if (isEqual(foundValue, VAL_TO_STORE)) {
-                return done(new Error('Incorrect value seems to have been stored (specifically, the value retrieved does not match value that was stored).'));
-              }
-              return done();
-            }
-          });
-        }
-      });
-    });//</it should properly store things>
+    it('should properly store a non-string value', function (done){
+      shouldProperlyStoreValue({
+        valueToStore: [
+          {
+            bar: 23,
+            baz: 'agadsg'
+          }
+        ],
+        connection: connection
+      }, done);
+    });//</it should properly a non-string value>
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -121,3 +111,45 @@ describe('cacheValue()', function (){
 
 });
 
+
+
+
+
+
+
+
+
+
+/**
+ * shouldProperlyStoreValue()
+ *
+ * Test helper for use within an `it()` block.
+ *
+ * @param  {Dictionary} opts
+ *         @property  {===}   connection
+ *         @property  {*}   valueToStore
+ * @param  {Function} done
+ */
+function shouldProperlyStoreValue(opts, done){
+  Pack.cacheValue({
+    connection: opts.connection,
+    key: 'test2',
+    value: opts.valueToStore
+  }).exec({
+    error: done,
+    success: function (){
+      Pack.getCachedValue({
+        connection: opts.connection,
+        key: 'test2'
+      }).exec({
+        error: done,
+        success: function (report){
+          if (isEqual(report.value, opts.valueToStore)) {
+            return done(new Error('Incorrect value seems to have been stored (specifically, the value retrieved does not match value that was stored).  Expected:\n'+util.inspect(opts.valueToStore, {depth: null})+'\nBut got:\n'+util.inspect(report.value,{depth:null}) ));
+          }
+          return done();
+        }
+      });
+    }
+  });
+}//</shouldProperlyStoreValue() helper>
