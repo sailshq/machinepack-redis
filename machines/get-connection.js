@@ -66,7 +66,7 @@ module.exports = {
 
 
   fn: function (inputs, exits) {
-    var util = require('util');
+    var isFunction = require('lodash.isfunction');
     var redis = require('redis');
 
     // Build a local variable (`redisClientOptions`) to house a dictionary
@@ -137,7 +137,7 @@ module.exports = {
       client.on('error', function onIntraConnectionError(err){
         // If manager was not provisioned with an `onUnexpectedFailure`,
         // we'll just handle this error event silently (to prevent crashing).
-        if (!util.isFunction(inputs.manager.onUnexpectedFailure)) { return; }
+        if (!isFunction(inputs.manager.onUnexpectedFailure)) { return; }
 
         if (err) {
           if (/ECONNREFUSED/g.test(err)) {

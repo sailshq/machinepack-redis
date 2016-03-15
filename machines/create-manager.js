@@ -111,13 +111,14 @@ module.exports = {
 
 
   fn: function (inputs, exits){
-    var util = require('util');
     var Url = require('url');
+    var isUndefined = require('lodash.isundefined');
+    var isObject = require('lodash.isobject');
 
     // Ensure that, if provided, `meta` is a dictionary.
     // This will be used as additional Redis client options.
-    if ( !util.isUndefined(inputs.meta) ) {
-      if ( !util.isObject(inputs.meta) ) {
+    if ( !isUndefined(inputs.meta) ) {
+      if ( !isObject(inputs.meta) ) {
         return exits.error('If provided, `meta` must be a dictionary.');
       }
     }

@@ -57,10 +57,11 @@ module.exports = {
 
 
   fn: function (inputs, exits) {
-    var util = require('util');
+    var isFunction = require('lodash.isfunction');
+    var isObject = require('lodash.isobject');
 
     // Validate provided connection (which is actually a redis client)
-    if ( !util.isObject(inputs.connection) || !util.isFunction(inputs.connection.end) || !util.isFunction(inputs.connection.removeAllListeners) ) {
+    if ( !isObject(inputs.connection) || !isFunction(inputs.connection.end) || !isFunction(inputs.connection.removeAllListeners) ) {
       return exits.badConnection();
     }
 
