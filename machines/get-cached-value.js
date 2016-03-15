@@ -113,7 +113,7 @@ module.exports = {
         value: foundValue
       });
 
-    });//</callback from redis>
+    });//</callback from redis GET>
   }
 
 

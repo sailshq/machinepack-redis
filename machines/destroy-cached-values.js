@@ -62,8 +62,20 @@ module.exports = {
     // Provided `connection` is a redis client.
     var redisClient = inputs.connection;
 
-    // TODO: run a "DEL" and call exits.success().
-    return exits.error(new Error('TODO'));
+    // Run a "DEL"
+    // TODO
+    setTimeout(function (){
+      ///////////////////////////////////////////////////////////////////////////
+      ///Temporary/Fake:
+      global.stuff = global.stuff || {};
+      inputs.keys.forEach(function (key){
+        delete global.stuff[key];
+      });
+      ///////////////////////////////////////////////////////////////////////////
+
+      // All done.
+      return exits.success();
+    });//</callback from redis DEL>
   },
 
 

@@ -94,14 +94,16 @@ module.exports = {
 
     // Run a "SET" to store it.
     // TODO
-    ///////////////////////////////////////////////////////////////////////////
-    ///Temporary/Fake:
-    global.stuff = global.stuff || {};
-    global.stuff[inputs.key]=inputs.value;
-    ///////////////////////////////////////////////////////////////////////////
+    setTimeout(function (){
+      ///////////////////////////////////////////////////////////////////////////
+      ///Temporary/Fake:
+      global.stuff = global.stuff || {};
+      global.stuff[inputs.key]=inputs.value;
+      ///////////////////////////////////////////////////////////////////////////
 
-    // Then we're done.
-    return exits.success();
+      // Then we're done.
+      return exits.success();
+    });//</callback from redis SET>
   },
 
 
