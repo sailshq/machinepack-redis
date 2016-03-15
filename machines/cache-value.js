@@ -81,6 +81,17 @@ module.exports = {
     // Provided `connection` is a redis client.
     var redisClient = inputs.connection;
 
+    // Redis expects string values.
+    //
+    // So JSON.stringify _EVERYTHING_, even if the value is already
+    // a string. This is important because otherwise it is very error-prone
+    // to figure out (on the way back out) whether or not something was
+    // originally a string.
+    //
+    // Optimizations here are possible in the future (see `rttc.stringifyHuman()`)
+    // but probably not a good idea right now.
+    inputs.value = JSON.stringify(inputs.value);
+
     // TODO: run a "SET" and call exits.success().
     return exits.error(new Error('TODO'));
   },

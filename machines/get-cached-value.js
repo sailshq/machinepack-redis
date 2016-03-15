@@ -67,6 +67,7 @@ module.exports = {
   fn: function(inputs, exits) {
     var isFunction = require('lodash.isfunction');
     var isObject = require('lodash.isobject');
+    var isUndefined = require('lodash.isundefined');
 
     // Ducktype provided "connection" (which is actually a redis client)
     if ( !isObject(inputs.connection) || !isFunction(inputs.connection.end) || !isFunction(inputs.connection.removeAllListeners) ) {
@@ -76,11 +77,31 @@ module.exports = {
     // Provided `connection` is a redis client.
     var redisClient = inputs.connection;
 
-    // TODO: run a "GET" and if something is found, call exits.success()
-    //        (if nothing is found, call exits.notFound())
-    return exits.error(new Error('TODO'));
-  },
 
+
+    // Run a "GET".
+    // TODO (replace setTimeout)
+    setTimeout(function(){
+      var foundValue;
+
+      // If NOTHING is found...
+      //
+      // (remember: `null`, `false`, `''`, and `0` are valid JSON values-
+      //  that's why we check for `undefined`)
+      if (isUndefined(foundValue)) {
+        return exits.notFound();
+      }
+
+      // Otherwise, JSON.parse() the value.
+      // (this is for consistency-- see `cache-value.js` for more info)
+      foundValue = JSON.parse(foundValue);
+
+      // Finally, call exits.success().
+      // TODO
+      return exits.error(new Error('TODO'));
+
+    });//</callback from redis>
+  }
 
 
 };
