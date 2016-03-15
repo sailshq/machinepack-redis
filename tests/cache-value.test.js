@@ -2,10 +2,8 @@
  * Module dependencies
  */
 
-var util = require('util');
-var isEqual = require('lodash.isequal');
 var Pack = require('../');
-
+var shouldProperlyStoreValue = require('./helpers/should-properly-store-value.test-helper');
 
 
 
@@ -69,23 +67,66 @@ describe('cacheValue()', function (){
 
     it('should properly store a string value', function (done){
       shouldProperlyStoreValue({
-        valueToStore: 'hello world',
-        connection: connection
+        connection: connection,
+        key: 'test2',
+        valueToStore: 'hello world'
       }, done);
     });//</it should properly a string value>
 
 
     it('should properly store a non-string value', function (done){
       shouldProperlyStoreValue({
+        connection: connection,
+        key: 'test3',
         valueToStore: [
           {
             bar: 23,
             baz: 'agadsg'
           }
         ],
-        connection: connection
       }, done);
     });//</it should properly a non-string value>
+
+    it('should properly store a number', function (done){
+      // (e.g. if you store `4` it shouldn't end up as `'4'` when it is retrieved)
+      shouldProperlyStoreValue({
+        connection: connection,
+        key: 'test4',
+        valueToStore: 29
+      }, done);
+    });//</it>
+
+    it('should properly store `null`', function (done){
+      shouldProperlyStoreValue({
+        connection: connection,
+        key: 'test5',
+        valueToStore: null
+      }, done);
+    });//</it>
+
+    it('should properly store `false`', function (done){
+      shouldProperlyStoreValue({
+        connection: connection,
+        key: 'test6',
+        valueToStore: false
+      }, done);
+    });//</it>
+
+    it('should properly store `0`', function (done){
+      shouldProperlyStoreValue({
+        connection: connection,
+        key: 'test7',
+        valueToStore: 0
+      }, done);
+    });//</it>
+
+    it('should properly store empty string (`\'\'`)', function (done){
+      shouldProperlyStoreValue({
+        connection: connection,
+        key: 'test8',
+        valueToStore: ''
+      }, done);
+    });//</it>
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -113,44 +154,3 @@ describe('cacheValue()', function (){
 });
 
 
-
-
-
-
-
-
-
-
-/**
- * shouldProperlyStoreValue()
- *
- * Test helper for use within an `it()` block.
- *
- * @param  {Dictionary} opts
- *         @property  {===}   connection
- *         @property  {*}   valueToStore
- * @param  {Function} done
- */
-function shouldProperlyStoreValue(opts, done){
-  Pack.cacheValue({
-    connection: opts.connection,
-    key: 'test2',
-    value: opts.valueToStore
-  }).exec({
-    error: done,
-    success: function (){
-      Pack.getCachedValue({
-        connection: opts.connection,
-        key: 'test2'
-      }).exec({
-        error: done,
-        success: function (report){
-          if (!isEqual(report.value, opts.valueToStore)) {
-            return done(new Error('Incorrect value seems to have been stored (specifically, the value retrieved does not match value that was stored).  Expected:\n'+util.inspect(opts.valueToStore, {depth: null})+'\nBut got:\n'+util.inspect(report.value,{depth:null}) ));
-          }
-          return done();
-        }
-      });
-    }
-  });
-}//</shouldProperlyStoreValue() helper>
