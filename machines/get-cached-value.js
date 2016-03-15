@@ -94,11 +94,19 @@ module.exports = {
 
       // Otherwise, JSON.parse() the value.
       // (this is for consistency-- see `cache-value.js` for more info)
-      foundValue = JSON.parse(foundValue);
+      try {
+        foundValue = JSON.parse(foundValue);
+      }
+      // Since we're in a callback, we need to use a try/catch to prevent
+      // throwing an uncaught exception and crashing the process.
+      catch (e) {
+        return exits.error(e);
+      }
 
       // Finally, call exits.success().
-      // TODO
-      return exits.error(new Error('TODO'));
+      return exits.success({
+        value: foundValue
+      });
 
     });//</callback from redis>
   }
