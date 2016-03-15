@@ -30,10 +30,14 @@
       "create-manager",
       "destroy-manager",
       "get-connection",
-      "release-connection"
+      "release-connection",
+      "get-cached-value",
+      "cache-value",
+      "destroy-cached-values"
     ],
-    "interfaces": [
-      "driveable"
-    ]
+    "implements": {
+      "driveable": "1.0",
+      "cache": "1.0-rc1"
+    }
   }
 }
