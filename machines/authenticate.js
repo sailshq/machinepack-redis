@@ -1,13 +1,10 @@
 module.exports = {
 //
 //
-  friendlyName: 'Get cached value',
+  friendlyName: 'Authenticate',
 //
 //
-  description: 'Look up the cached value associated with the specified key.',
-//
-//
-  cacheable: true,
+  description: 'Authenticate to the current connected Redis instance',
 //
 //
   inputs: {
@@ -20,12 +17,12 @@ module.exports = {
       required: true
     },
 //
-    key: {
-      friendlyName: 'Key',
-      description: 'The unique key to look up.',
-      extendedDescription: 'The case-sensitivity and allowable characters in keys may vary between drivers.',
+    password: {
+      friendlyName: 'Password',
+      description: 'The password to pass to a connection for authentication',
+      extendedDescription: 'The password to pass to a connection for authentication',
       required: true,
-      example: 'myNamespace.foo.bar_baz'
+      example: 'mysupercomplexpass'
     },
 //
     meta: {
@@ -41,20 +38,20 @@ module.exports = {
   exits: {
 //
     success: {
-      description: 'Value was sucessfully fetched.',
+      description: 'The authentication process succeeded',
       outputVariableName: 'report',
-      outputDescription: 'The `value` property is the cached value that was just retrieved.  The `meta` property is reserved for custom driver-specific extensions.',
+      outputDescription: 'The `meta` property is reserved for custom driver-specific extensions.',
       example: {
-        value: '*',
         meta: '==='
       }
     },
 //
-    notFound: {
-      description: 'No value exists under the specified key.',
+    failed: {
+      description: 'The attempt to authenticate failed',
       outputVariableName: 'report',
-      outputDescription: 'The `meta` property is reserved for custom driver-specific extensions.',
+      outputDescription: 'The `error` property is a JavaScript Error instance with more information and a stack trace.  The `meta` property is reserved for custom driver-specific extensions.',
       example: {
+        error: '===',
         meta: '==='
       }
     },
@@ -74,25 +71,15 @@ module.exports = {
     // Provided `connection` is a redis client.
     var redisClient = inputs.connection;
 
-    try {
-      redisClient.get(inputs.key, function (err, foundValue){
-        if (err) {
-          return exits.error(err);
+    redisClient.auth(inputs.password, function (err, result){
+      if (err) {
+        if (err.message === '') {
+          return exits.failed({error: "There was an error authenticating:" + err.message + '.' + err.stack});
         }
-        if (foundValue === null) {
-          return exits.notFound();
-        } else {
-          return exits.success({
-            value: JSON.parse(foundValue)
-          });
-        }
-      });
-    }
-    // Since we're in a callback, we need to use a try/catch to prevent
-    // throwing an uncaught exception and crashing the process.
-    catch (e) {
-      return exits.error(e);
-    }
+        return exits.error(err);
+      }
+      return exits.success();
+    });
 
   }
 

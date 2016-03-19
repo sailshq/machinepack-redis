@@ -19,7 +19,7 @@ describe('destroyCachedValues()', function (){
 
 
   // The keys to use during tests.
-  var keysUsed = ['test1', 'test2', 'test3', 'test4', 'test5', 'test6', 'test7', 'test8'];
+  var keysUsed = ['machinepack-redis.test1', 'machinepack-redis.test2', 'machinepack-redis.test3', 'machinepack-redis.test4', 'machinepack-redis.test5', 'machinepack-redis.test6', 'machinepack-redis.test7', 'machinepack-redis.test8'];
 
 
   //  ┌┐ ┌─┐┌─┐┌─┐┬─┐┌─┐
@@ -30,7 +30,10 @@ describe('destroyCachedValues()', function (){
   // connection from it.
   before(function (done){
     Pack.createManager({
-      connectionString: 'redis://127.0.0.1:6379'
+      connectionString: 'redis://127.0.0.1:6379',
+      meta: {
+        auth_pass: 'qwer1234' // use alternative option
+      }
     }).exec({
       error: done,
       success: function (report){
@@ -54,36 +57,90 @@ describe('destroyCachedValues()', function (){
         });
       }
     });
-  });//</before>
+  }); //</before>
 
 
 
   //  ╔╗ ╔═╗╔═╗╦╔═╗  ╦ ╦╔═╗╔═╗╔═╗╔═╗
   //  ╠╩╗╠═╣╚═╗║║    ║ ║╚═╗╠═╣║ ╦║╣
   //  ╚═╝╩ ╩╚═╝╩╚═╝  ╚═╝╚═╝╩ ╩╚═╝╚═╝
-  describe('with basic usage', function(){
+  describe('with basic usage', function (){
 
 
     it('should work', function (done){
-      Pack.destroyCachedValues({
+
+      Pack.cacheValue({
         connection: connection,
-        keys: ['test1']
-      }).exec(done);
+        key: 'test1',
+        value: 'testValue'
+      }).exec(function (){
+        // Now delete keys just to be safe.
+        Pack.destroyCachedValues({
+          connection: connection,
+          keys: ['test1']
+        }).exec(function (){
+          // Now delete keys just to be safe.
+          Pack.getCachedValue({
+            connection: connection,
+            key: 'test1'
+          }).exec({
+            error: done,
+            notFound: function (){
+              return done();
+            },
+            success: function (){
+              return done(new Error('Expecting `notFound` exit'));
+            }
+          });
+        });
+      });
+
+    });//</it should work>
+
+    it('should delete keys even if they do not exit', function (done){
+
+      Pack.cacheValue({
+        connection: connection,
+        key: 'test1',
+        value: 'testValue'
+      }).exec(function (){
+        // Now delete keys just to be safe.
+        Pack.destroyCachedValues({
+          connection: connection,
+          keys: ['test1', 'nonexistingkey']
+        }).exec(function (){
+          // Now delete keys just to be safe.
+          Pack.getCachedValue({
+            connection: connection,
+            key: 'test1'
+          }).exec({
+            error: done,
+            notFound: function (){
+              // Now delete keys just to be safe.
+              Pack.getCachedValue({
+                connection: connection,
+                key: 'nonexistingkey'
+              }).exec({
+                error: done,
+                notFound: function (){
+                  return done();
+                },
+                success: function (){
+                  return done(new Error('Expecting `notFound` exit'));
+                }
+              });
+            },
+            success: function (){
+              return done(new Error('Expecting `notFound` exit'));
+            }
+          });
+        });
+      });
+
     });//</it should work>
 
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // TODO: test that it actually deletes keys
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // TODO: test that it doesn't fail if >=1 of the specified keys doesn't exist
-    ////////////////////////////////////////////////////////////////////////////////
-
-
   });//</with basic usage>
-
-
 
 
   //  ┌─┐┌─┐┌┬┐┌─┐┬─┐
@@ -99,7 +156,7 @@ describe('destroyCachedValues()', function (){
       // If there is an error deleting keys, log it but don't stop
       // (we need to be sure and destroy the manager)
       if (err) {
-        console.error('ERROR: Could not destroy keys in test cleanup.  Details:\n',err);
+        console.error('ERROR: Could not destroy keys in test cleanup.  Details:\n', err);
       }
       Pack.destroyManager({
         manager: manager
