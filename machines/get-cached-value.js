@@ -74,26 +74,35 @@ module.exports = {
     // Provided `connection` is a redis client.
     var redisClient = inputs.connection;
 
-    try {
-      redisClient.get(inputs.key, function (err, foundValue){
-        if (err) {
-          return exits.error(err);
-        }
-        if (foundValue === null) {
-          return exits.notFound();
-        } else {
-          return exits.success({
-            value: JSON.parse(foundValue)
-          });
-        }
-      });
-    }
-    // Since we're in a callback, we need to use a try/catch to prevent
-    // throwing an uncaught exception and crashing the process.
-    catch (e) {
-      return exits.error(e);
-    }
 
+    redisClient.get(inputs.key, function (err, foundValue){
+      if (err) {
+        return exits.error(err);
+      }
+
+      // If the value is null, before parsing JSON,
+      // the value was not found in Redis
+      if (foundValue === null) {
+        return exits.notFound();
+      }
+
+      // Otherwise, JSON.parse() the value
+      // (this is for consistency-- see `cache-value.js` for more info)
+      try {
+        foundValue = JSON.parse(foundValue);
+      }
+      //// Since we're in a callback, we need to use a try/catch to prevent
+      // throwing an uncaught exception and crashing the process.
+      catch (e) {
+        return exits.error(e);
+      }
+
+      // Finally, call exits.success().
+      return exits.success({
+        value: foundValue
+      });
+
+    });
   }
 
 };

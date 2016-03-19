@@ -1,6 +1,6 @@
 # MachinePack Redis Changelog
 
-### 1.0.3
+### master
 
 * [FIX] Made it Node v0.10 compatible
 * [ENHANCEMENT] Set up experimental cache interface layer

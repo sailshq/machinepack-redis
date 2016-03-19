@@ -87,24 +87,13 @@ module.exports = {
     // Provided `connection` is a redis client.
     var redisClient = inputs.connection;
 
-    var numberOfKeys = inputs.keys.length;
-
-    try {
-      redisClient.del(inputs.keys, function (err, result){
-        if (err) {
-          return exits.failed({error: new Error('There was an error deleting the keys passed. Details: ' + err.stack)});
-        }
-        return exits.success(result === numberOfKeys);
-      });
-    }
-    // Since we're in a callback, we need to use a try/catch to prevent
-    // throwing an uncaught exception and crashing the process.
-    catch (e) {
-      return exits.error(e);
-    }
+    redisClient.del(inputs.keys, function (err){
+      if (err) {
+        return exits.failed({error: new Error('There was an error deleting the keys passed. Details: ' + err.stack)});
+      }
+      return exits.success();
+    });
 
   }
-
-
 
 };
