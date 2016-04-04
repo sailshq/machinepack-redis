@@ -72,7 +72,6 @@ module.exports = {
   fn: function (inputs, exits){
     var isFunction = require('lodash.isfunction');
     var isObject = require('lodash.isobject');
-    var isNumber = require('lodash.isnumber');
 
     // Ducktype provided "connection" (which is actually a redis client)
     if (!isObject(inputs.connection) || !isFunction(inputs.connection.end) || !isFunction(inputs.connection.removeAllListeners)) {
@@ -106,7 +105,7 @@ module.exports = {
     // * SET mykey value
     // * EXPIRE mykey seconds
     // http://redis.io/commands/setex
-    if (isNumber(inputs.ttl) && inputs.ttl > 0) {
+    if (inputs.ttl > 0) {
       redisClient.setex(inputs.key, inputs.ttl, inputs.value, redisSetCallback);
     } else {
       redisClient.set(inputs.key, inputs.value, redisSetCallback);
