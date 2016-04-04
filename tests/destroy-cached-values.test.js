@@ -79,7 +79,7 @@ describe('destroyCachedValues()', function (){
           connection: connection,
           keys: ['test1']
         }).exec(function (){
-          // Now delete keys just to be safe.
+          // Try to get the value from the cache
           Pack.getCachedValue({
             connection: connection,
             key: 'test1'
@@ -107,16 +107,16 @@ describe('destroyCachedValues()', function (){
         // Now delete keys just to be safe.
         Pack.destroyCachedValues({
           connection: connection,
-          keys: ['test1', 'nonexistingkey']
+          keys: ['test1']
         }).exec(function (){
-          // Now delete keys just to be safe.
+          // Try to get the deleted key from the cache
           Pack.getCachedValue({
             connection: connection,
             key: 'test1'
           }).exec({
             error: done,
             notFound: function (){
-              // Now delete keys just to be safe.
+              // Try to get the non existing key from the cache
               Pack.getCachedValue({
                 connection: connection,
                 key: 'nonexistingkey'
@@ -137,8 +137,64 @@ describe('destroyCachedValues()', function (){
         });
       });
 
-    });//</it should work>
+    });//</it should delete keys even if they do not exit>
 
+    it('should fail when passed a string', function (done){
+
+      Pack.destroyCachedValues({
+        connection: connection,
+        keys: "somekeytodelete"
+      }).exec({
+        error: function (err){
+          return done();
+        },
+        notFound: function (){
+          return done(new Error('Expecting `error` exit'));
+        },
+        success: function (){
+          return done(new Error('Expecting `error` exit'));
+        }
+      });
+
+    });//</should fail when passed a string>
+
+    it('should fail when passed a number', function (done){
+
+      Pack.destroyCachedValues({
+        connection: connection,
+        keys: 1
+      }).exec({
+        error: function (err){
+          return done();
+        },
+        notFound: function (){
+          return done(new Error('Expecting `error` exit'));
+        },
+        success: function (){
+          return done(new Error('Expecting `error` exit'));
+        }
+      });
+
+    });//</it should fail when passed a number>
+
+    it('should fail when passed an object', function (done){
+
+      Pack.destroyCachedValues({
+        connection: connection,
+        keys: {}
+      }).exec({
+        error: function (err){
+          return done();
+        },
+        notFound: function (){
+          return done(new Error('Expecting `error` exit'));
+        },
+        success: function (){
+          return done(new Error('Expecting `error` exit'));
+        }
+      });
+
+    });//</it should fail when passed a number>
 
   });//</with basic usage>
 
