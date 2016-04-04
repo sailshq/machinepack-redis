@@ -76,14 +76,13 @@ module.exports = {
   fn: function (inputs, exits){
     var isFunction = require('lodash.isfunction');
     var isObject = require('lodash.isobject');
-    var isArray = require('lodash.isarray');
 
     // Ducktype provided "connection" (which is actually a redis client)
     if (!isObject(inputs.connection) || !isFunction(inputs.connection.end) || !isFunction(inputs.connection.removeAllListeners)) {
       return exits.badConnection();
     }
 
-    if (!isArray(inputs.keys) || (isArray(inputs.keys) && inputs.keys.length === 0)) {
+    if (inputs.keys.length === 0) {
       return exits.invalidKeys();
     }
 
