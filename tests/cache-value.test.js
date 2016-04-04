@@ -199,7 +199,7 @@ describe('cacheValue()', function (){
           return done(new Error('Expecting `error` exit'));
         }
       });
-    }); //</should properly store empty string `\'\'`>
+    }); //</should fail if key is an object>
 
     it('should fail if key is an array', function (done){
       Pack.cacheValue({
@@ -214,14 +214,60 @@ describe('cacheValue()', function (){
           return done(new Error('Expecting `error` exit'));
         }
       });
-    }); //</should properly store empty string `\'\'`>
+    }); //</should fail if key is an array>
 
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // TODO: test that automatic expiry is happening
-    // (e.g. using expiry of 1 second + setTimeout)
-    ////////////////////////////////////////////////////////////////////////////////
+    it('should handle ttl correctly', function (done){
+      this.timeout(1700);
 
+      Pack.cacheValue({
+        connection: connection,
+        key: keysUsed[1],
+        value: 'timedout',
+        ttl: 1
+      }).exec({
+        error: function (err){
+          return done(new Error('Expecting `success` exit'));
+        },
+        success: function (){
+          // first check that it exists in the next 500ms
+          setTimeout(function (){
+            Pack.getCachedValue({
+              connection: connection,
+              key: keysUsed[1]
+            }).exec({
+              error: done,
+              badConnection: function (){
+                return done(new Error('Expecting `succeess` exit'));
+              },
+              notFound: function (){
+                return done(new Error('Expecting `succeess` exit'));
+              },
+              success: function (value){
+                // now check that it expired, after 1.5 secs
+                setTimeout(function (){
+                  Pack.getCachedValue({
+                    connection: connection,
+                    key: keysUsed[1]
+                  }).exec({
+                    error: done,
+                    badConnection: function (){
+                      return done(new Error('Expecting `notFound` exit'));
+                    },
+                    notFound: function (){
+                      return done();
+                    },
+                    success: function (value){
+                      return done(new Error('Expecting `notFound` exit'));
+                    }
+                  });
+                }, 1000);
+              }
+            });
+          }, 500);
+        }
+      });
+    }); //</should handle ttl correctly>
 
 
 
