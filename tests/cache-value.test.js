@@ -19,7 +19,7 @@ describe('cacheValue()', function (){
   var connection;
   // The keys to use during tests. Prefixed with `machinepack-redis.` so that 
   // there is no key name clash with any other possible existing keys
-  var keysUsed = ['machinepack-redis.dummy', 'machinepack-redis.test1', 'machinepack-redis.test2', 'machinepack-redis.test3', 'machinepack-redis.test4', 'machinepack-redis.test5', 'machinepack-redis.test6', 'machinepack-redis.test7', 'machinepack-redis.test8'];
+  var keysUsed = [12345, 'machinepack-redis.test1', 'machinepack-redis.test2', 'machinepack-redis.test3', 'machinepack-redis.test4', 'machinepack-redis.test5', 'machinepack-redis.test6', 'machinepack-redis.test7', 'machinepack-redis.test8'];
 
   //                                               _   _             
   //                                              | | (_)            
@@ -175,6 +175,45 @@ describe('cacheValue()', function (){
         key: keysUsed[8],
         valueToStore: ''
       }, done);
+    }); //</should properly store empty string `\'\'`>
+
+    it('should properly store if the key is a number. It is converted to a key',
+      function (done){
+        shouldProperlyStoreValue({
+          connection: connection,
+          key: keysUsed[0],
+          valueToStore: '12345'
+        }, done);
+      }); //</should properly store if the key is a number. It is converted to a key>
+
+    it('should fail if key is an object', function (done){
+      Pack.cacheValue({
+        connection: connection,
+        key: {},
+        value: ''
+      }).exec({
+        error: function (err){
+          done();
+        },
+        success: function (){
+          return done(new Error('Expecting `error` exit'));
+        }
+      });
+    }); //</should properly store empty string `\'\'`>
+
+    it('should fail if key is an array', function (done){
+      Pack.cacheValue({
+        connection: connection,
+        key: [],
+        value: ''
+      }).exec({
+        error: function (err){
+          done();
+        },
+        success: function (){
+          return done(new Error('Expecting `error` exit'));
+        }
+      });
     }); //</should properly store empty string `\'\'`>
 
 
