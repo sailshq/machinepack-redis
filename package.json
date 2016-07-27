@@ -50,7 +50,7 @@
       "destroy-cached-values"
     ],
     "implements": {
-      "driveable": "1.0",
+      "connectable": "1.0",
       "cache": "1.0-rc1"
     },
     "testsUrl": "https://travis-ci.org/mikermcneil/machinepack-redis"
