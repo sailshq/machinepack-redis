@@ -22,26 +22,6 @@ For the latest usage documentation, version information, and test status of this
 
 ## Quick Start
 
-> ##### To run this example
->
-> First, if your Redis server is not running yet, open a new terminal window and do:
-> ```bash
-> redis-server
-> ```
-> 
-> Next, copy the example code below to a new `.js` file somewhere in your project (e.g. `examples/basic-usage.js`).
-> Then run:
-> ```bash
-> npm install machinepack-redis --save --save-exact
-> ```
->
->
-> Finally, run the example:
-> ```bash
-> node examples/basic-usage.js
-> ```
-
-
 
 ```javascript
 
@@ -220,6 +200,26 @@ doSomeStuffWithRedis({
   console.log('Successfully did some stuff with Redis!');
 });
 ```
+
+
+> ##### Setup instructions for the example above
+> 
+> First, if your Redis server is not running yet, open a new terminal window and do:
+> ```bash
+> redis-server
+> ```
+> 
+> Next, copy the example code below to a new `.js` file somewhere in your project (e.g. `examples/basic-usage.js`).
+> Then run:
+> ```bash
+> npm install machinepack-redis --save --save-exact
+> ```
+>
+>
+> Finally, run the example:
+> ```bash
+> node examples/basic-usage.js
+> ```
 
 
 ## About  &nbsp; [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/node-machine/general?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
