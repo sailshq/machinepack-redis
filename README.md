@@ -53,105 +53,115 @@ var Redis = require('machinepack-redis');
 Redis.createManager({
   connectionString: 'redis://127.0.0.1:6379',
   onUnexpectedFailure: function (err){
-    console.warn('WARNING: unexpected failure.  Details:', err);
+    console.warn('WARNING: Redis manager emitted a notice about an unexpected failure.  The redis server may have crashed, or become inaccessible.  Error details from Redis:', err);
   }
 }).exec(function (err, report){
   if (err) {
-    console.error('UNEXPECTED ERROR:', err);
+    console.error(new Error('Could not create manager due to unexpected error: '+ err.stack));
     return;
-  }
+  }//--• No reason to proceed any further.
+  
   var mgr = report.manager;
   Redis.getConnection({
     manager: mgr
   }).exec(function (err, report){
     if (err) {
-      console.error('UNEXPECTED ERROR:', err);
+      console.error(new Error('Could not get connection from manager, due to unexpected error: '+err.stack));
       return;
-    }
+    }//--• No reason to proceed any further.
+    
     var connection = report.connection;
     console.log('CONNECTED!');
-
-    // Storing in key `stuff` value `things`
-    Redis.cacheValue({
-      connection: connection,
-      key: 'stuff',
-      value: 'things'
-    }).exec(function (err, report){
-      if (err) {
-        console.error('UNEXPECTED ERROR:', err);
-        return;
-      }
-
-      console.log('stored `stuff` key with `things`');
-
-      // Get the cached value back
-      Redis.getCachedValue({
+    
+    // Now do stuff w/ the connection
+    (function during(done){
+      
+      // Storing in key `stuff` value `things`
+      Redis.cacheValue({
         connection: connection,
-        key: 'stuff'
+        key: 'stuff',
+        value: 'things'
       }).exec(function (err, report){
-
         if (err) {
-          console.error('UNEXPECTED ERROR:', err);
-          return;
+          return done(new Error('Could not cache value, due to unexpected error.  Error details: '+err.stack));
         }
-
-        console.log('stuff `key` contains `%s`', report.value);
-
-        // remove keys. Notice that keys is an array of keys to remove
-        Redis.destroyCachedValues({
+  
+        console.log('stored `stuff` key with `things`');
+  
+        // Get the cached value back
+        Redis.getCachedValue({
           connection: connection,
-          keys: ['stuff']
+          key: 'stuff'
         }).exec(function (err, report){
-
           if (err) {
-            console.error('UNEXPECTED ERROR:', err);
-            return;
+            return done(new Error('Could not get cached value, due to unexpected error.  Error details:', err.stack));
           }
-
-          console.log('key `stuff` removed');
-
-          // Get the cached value back
-          Redis.getCachedValue({
+  
+          console.log('stuff `key` contains `%s`', report.value);
+  
+          // remove keys. Notice that keys is an array of keys to remove
+          Redis.destroyCachedValues({
             connection: connection,
-            key: 'stuff'
-          }).exec({
-            error: function (err){
-              console.error('UNEXPECTED ERROR:', err);
-              return;
-            },
-            notFound: function (){
-              console.log('keys `stuff` not found');
-
-              // Always release the connection when finished:
-              Redis.releaseConnection({
-                connection: connection
-              }).exec({
-                error: function (err){
-                  console.error('UNEXPECTED ERROR:', err);
-                },
-                success: function (report){
-                  console.log('Connection released.');
-
-                  // But ALWAYS destroy the connection manager when finished
-                  Redis.destroyManager({manager: mgr}).exec(function (err){
-                    if (err) {
-                      console.error('UNEXPECTED ERROR:', err);
-                      return;
-                    }
-                    console.log('Done. (Manager destroyed)');
-                  }); //</Redis.destroyManager>
-
-                }
-              });
-            },
-            success: function (){
-              console.error('Should not find the key!');
+            keys: ['stuff']
+          }).exec(function (err, report){
+            if (err) {
+              return done(new Error('Could not get destroy cached values, due to unexpected error.  Error details:', err.stack));
             }
-          }); //</Redis.getCachedValue>
+  
+            console.log('key `stuff` removed');
+  
+            // Get the cached value back
+            Redis.getCachedValue({
+              connection: connection,
+              key: 'stuff'
+            }).exec({
+              error: function (err){
+                return done(new Error('Could not get cached value the 2nd time, due to unexpected error.  Error details:', err.stack));
+              },
+              notFound: function (){
+                console.log('As we expected, the `stuff` key was not found this time.  Good!');
+                return done();
+              },
+              success: function (){
+                return done(new Error('Consistency violation: Should not have been able to find `stuff` key the 2nd time!!!  Must be a bug in our code.'));
+              }
+            }); //</Redis.getCachedValue>
+  
+          }); //</Redis.destroyCachedValues>
+        }); //</Redis.getCachedValue>
+      }); //</Redis.cacheValue>
+    })(function afterwards (err) {
+      if (err) {
+        console.log('Unexpected error occurred while doing stuff with this Redis connection.  Details: '+err.stack);
+        console.log('Nonetheless, continuing on to release the connection and destroy the manager....');
+      }// >- continue on to attempt to release the connection and destroy the manager.
+      
+      // Always release the connection when finished:
+      Redis.releaseConnection({
+        connection: connection
+      }).exec({
+        error: function (err){
+          console.error('Could not release Redis connection due to unexpected error:', err);
+          // Note that we might want to also still attempt to destroy the manager even
+          // though we couldn't release the connection. (although we don't in this example)
+        },
+        success: function (report){
+          console.log('Connection released.');
 
-        }); //</Redis.destroyCachedValues>
-      }); //</Redis.getCachedValue>
-    }); //</Redis.cacheValue>
+          // But ALWAYS destroy the connection manager when finished
+          Redis.destroyManager({manager: mgr}).exec(function (err){
+            if (err) {
+              console.error('Could not destroy Redis connection manager due to unexpected error:', err);
+              return;
+            }
+            
+            console.log('Done. (Manager destroyed)');
+            
+          }); //</Redis.destroyManager>
+
+        }//</on success :: Redis.releaseConnection()>
+      });//</Redis.releaseConnection()>
+    });//</self-calling function :: do stuff while redis connection is active>
   }); //</Redis.getConnection>
 }); //</Redis.createManager>
 
