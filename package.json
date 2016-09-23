@@ -13,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mikermcneil/machinepack-redis.git"
+    "url": "git+https://github.com/treelinehq/machinepack-redis.git"
   },
   "author": "The Treeline Company",
   "contributors": [
@@ -53,6 +53,6 @@
       "connectable": "1.0",
       "cache": "1.0-rc1"
     },
-    "testsUrl": "https://travis-ci.org/mikermcneil/machinepack-redis"
+    "testsUrl": "https://travis-ci.org/treelinehq/machinepack-redis"
   }
 }
