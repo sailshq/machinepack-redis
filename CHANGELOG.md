@@ -1,4 +1,4 @@
-# MachinePack Redis Changelog
+# mp-redis Changelog
 
 ### master
 
@@ -7,6 +7,8 @@
 * [ENHANCEMENT] Implemented all functions
 * [ENHANCEMENT] Added unit tests, all passing
 * [ENHANCEMENT] Added code coverage.
+* [INTERNAL] Upgrade/pin deps
+* [INTERNAL] Normalize property names and some metadata to match best practices from latest machine spec.
 
 ### 1.0.2
 
