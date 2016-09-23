@@ -11,7 +11,7 @@ Structured Node.js bindings for Redis.
 > This package contains relatively low-level functionality, and it is designed to provide building blocks for higher-level abstractions (e.g. an ORM like Waterline).
 
 
-## Installation &nbsp; [![NPM version](https://badge.fury.io/js/machinepack-redis.svg)](http://badge.fury.io/js/machinepack-redis) [![Build Status](https://travis-ci.org/treeline/machinepack-redis.png?branch=master)](https://travis-ci.org/treeline/machinepack-redis)
+## Installation &nbsp; [![NPM version](https://badge.fury.io/js/machinepack-redis.svg)](http://badge.fury.io/js/machinepack-redis) [![Build Status](https://travis-ci.org/treelinehq/machinepack-redis.svg?branch=master)](https://travis-ci.org/treelinehq/machinepack-redis)
 
 ```sh
 $ npm install machinepack-redis --save
