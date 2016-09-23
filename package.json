@@ -16,7 +16,7 @@
     "url": "git+https://github.com/mikermcneil/machinepack-redis.git"
   },
   "author": "The Treeline Company",
-  "contributor": [
+  "contributors": [
     {
       "name": "Luis Lobo Borobia",
       "email": "luislobo@gmail.com"
@@ -24,17 +24,17 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "async": "1.5.2",
+    "async": "2.0.1",
     "lodash.isfunction": "3.0.8",
     "lodash.isobject": "3.0.2",
-    "lodash.isundefined": "3.0.1",
-    "machine": "~12.0.0",
+    "machine": "^13.0.0-11",
     "redis": "2.4.2"
   },
   "devDependencies": {
-    "istanbul": "^0.4.2",
+    "istanbul": "0.4.5",
+    "lodash": "3.10.1",
     "lodash.isequal": "4.1.1",
-    "mocha": "2.4.5",
+    "mocha": "3.0.2",
     "test-machinepack-mocha": "^0.2.2"
   },
   "machinepack": {
