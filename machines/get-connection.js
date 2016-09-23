@@ -36,10 +36,16 @@ module.exports = {
 //
     success: {
       description: 'A connection was successfully acquired.',
-      extendedDescription: 'This connection should be eventually released.  Otherwise, it may time out.  It is not a good idea to rely on database connections timing out-- be sure to release this connection when finished with it!',
-      outputVariableName: 'report',
-      outputDescription: 'The `connection` property is an active connection to the database.  The `meta` property is reserved for custom driver-specific extensions.',
-      example: {
+      extendedDescription: 'This connection should be eventually released.  Otherwise, it may time out.  '+
+        'It is not a good idea to rely on database connections timing out-- be sure to release this connection '+
+        'when finished with it!\n'+
+        '\n'+
+        'In the report returned from this exit:\n'+
+        ' + The `connection` property is an active connection to the database.\n'+
+        ' + The `meta` property is reserved for custom driver-specific extensions.',
+      outputFriendlyName: 'Report',
+      outputDescription: 'A dictionary reporting any relevant output from this machine under these circumstances.',
+      outputExample: {
         connection: '===',
         meta: '==='
       }
@@ -53,10 +59,15 @@ module.exports = {
         ' + there is no software "database" with the specified name running on the server\n' +
         ' + the provided connection string does not have necessary access rights for the specified software "database"\n' +
         ' + this Node.js process could not connect to the database, perhaps because of firewall/proxy settings\n' +
-        ' + any other miscellaneous connection error',
-      outputVariableName: 'report',
-      outputDescription: 'The `error` property is a JavaScript Error instance explaining that a connection could not be made.  The `meta` property is reserved for custom driver-specific extensions.',
-      example: {
+        ' + any other miscellaneous connection error\n'+
+        '\n'+
+        'In the report returned from this exit:\n'+
+        ' + The `error` property is a JavaScript Error instance explaining that a connection could not be made.\n'+
+        ' + The `meta` property is reserved for custom driver-specific extensions.'+
+        '',
+      outputFriendlyName: 'Report',
+      outputDescription: 'A dictionary reporting any relevant output from this machine under these circumstances.',
+      outputExample: {
         error: '===',
         meta: '==='
       }

@@ -7,7 +7,7 @@ module.exports = {
   description: 'Look up the cached value associated with the specified key.',
 //
 //
-  cacheable: true,
+  sideEffects: 'cacheable',
 //
 //
   inputs: {
@@ -42,9 +42,9 @@ module.exports = {
 //
     success: {
       description: 'Value was sucessfully fetched.',
-      outputVariableName: 'report',
+      outputFriendlyName: 'Report',
       outputDescription: 'The `value` property is the cached value that was just retrieved.  The `meta` property is reserved for custom driver-specific extensions.',
-      example: {
+      outputExample: {
         value: '*',
         meta: '==='
       }
@@ -52,9 +52,9 @@ module.exports = {
 //
     notFound: {
       description: 'No value exists under the specified key.',
-      outputVariableName: 'report',
+      outputFriendlyName: 'Report',
       outputDescription: 'The `meta` property is reserved for custom driver-specific extensions.',
-      example: {
+      outputExample: {
         meta: '==='
       }
     },
@@ -62,6 +62,8 @@ module.exports = {
     badConnection: require('../constants/badConnection.exit')
 //
   },
+
+
   fn: function (inputs, exits){
     var isFunction = require('lodash.isfunction');
     var isObject = require('lodash.isobject');

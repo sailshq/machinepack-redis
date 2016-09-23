@@ -5,6 +5,9 @@ module.exports = {
 //
 //
   description: 'Destroy the values stored under the specified keys.',
+
+
+  sideEffects: 'idempotent',
 //
 //
   inputs: {
@@ -41,28 +44,28 @@ module.exports = {
 //
     success: {
       description: 'The specified array of keys were deleted.',
-      outputVariableName: 'report',
+      outputFriendlyName: 'Report',
       outputDescription: 'The `meta` property is reserved for custom driver-specific extensions.',
-      example: {
+      outputExample: {
         meta: '==='
       }
     },
-//    
+//
     invalidKeys: {
       description: 'The specified array of keys contains one or more keys which are not valid for this cache.',
       extendedDescription: 'For example, the driver might reject certain reserved keys.  Or the underlying database might not permit certain keys to be used.',
-      outputVariableName: 'report',
+      outputFriendlyName: 'Report',
       outputDescription: 'The `meta` property is reserved for custom driver-specific extensions.',
-      example: {
+      outputExample: {
         meta: '==='
       }
     },
-//    
+//
     failed: {
       description: 'The cache encountered an error while attempting to destroy one or more of the specified keys.',
-      outputVariableName: 'report',
+      outputFriendlyName: 'Report',
       outputDescription: 'The `error` property is a JavaScript Error instance explaining the exact error.  The `meta` property is reserved for custom driver-specific extensions.',
-      example: {
+      outputExample: {
         error: '===',
         meta: '==='
       }

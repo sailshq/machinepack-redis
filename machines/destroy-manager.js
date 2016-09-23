@@ -5,6 +5,9 @@ module.exports = {
 //
 //
   description: 'Destroy the specified connection manager and destroy all of its active connections.',
+
+
+  sideEffects: 'idempotent',
 //
 //
   inputs: {
@@ -31,9 +34,9 @@ module.exports = {
 //
     success: {
       description: 'The specified manager and all of its active connections were successfully destroyed.',
-      outputVariableName: 'report',
+      outputFriendlyName: 'Report',
       outputDescription: 'The `meta` property is reserved for custom driver-specific extensions.',
-      example: {
+      outputExample: {
         meta: '==='
       }
     },
@@ -45,9 +48,9 @@ module.exports = {
         'Usually, this means the manager has already been destroyed.  But depending on the driver ' +
         'it could also mean that database cannot be accessed.  In production, this can mean that the database ' +
         'server(s) became overwhelemed or were shut off while some business logic was in progress.',
-      outputVariableName: 'report',
+      outputFriendlyName: 'Report',
       outputDescription: 'The `error` property is a JavaScript Error instance with more information and a stack trace.  The `meta` property is reserved for custom driver-specific extensions.',
-      example: {
+      outputExample: {
         error: '===',
         meta: '==='
       }

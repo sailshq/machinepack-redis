@@ -8,6 +8,9 @@ module.exports = {
 //
 //
   extendedDescription: 'If a `ttl` ("time-to-live") timeout is specified, the key will be deleted automatically after the specified number of seconds.',
+
+
+  sideEffects: 'idempotent',
 //
 //
   inputs: {
@@ -57,9 +60,9 @@ module.exports = {
 //
     success: {
       description: 'Value was sucessfully written.',
-      outputVariableName: 'report',
+      outputFriendlyName: 'Report',
       outputDescription: 'The `meta` property is reserved for custom driver-specific extensions.',
-      example: {
+      outputExample: {
         meta: '==='
       }
     },

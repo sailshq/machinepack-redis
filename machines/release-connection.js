@@ -10,6 +10,9 @@ module.exports = {
   moreInfoUrl: 'https://github.com/NodeRedis/node_redis#clientendflush',
 
 
+  sideEffects: 'idempotent',
+
+
   inputs: {
 
     connection: {
@@ -34,10 +37,12 @@ module.exports = {
 
     success: {
       description: 'The connection was released and is no longer active.',
-      extendedDescription: 'The provided connection may no longer be used for any subsequent queries.',
-      outputVariableName: 'report',
-      outputDescription: 'The `meta` property is reserved for custom driver-specific extensions.',
-      example: {
+      extendedDescription: 'The provided connection may no longer be used for any subsequent queries.\n'+
+        'In the report returned from this exit:\n'+
+        ' + The `meta` property is reserved for custom driver-specific extensions.',
+      outputFriendlyName: 'Report',
+      outputDescription: 'A dictionary reporting any relevant output from this machine under these circumstances.',
+      outputExample: {
         meta: '==='
       }
     },

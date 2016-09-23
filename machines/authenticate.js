@@ -4,7 +4,10 @@ module.exports = {
   friendlyName: 'Authenticate',
 //
 //
-  description: 'Authenticate to the current connected Redis instance',
+  description: 'Authenticate an active connection with its connected Redis server.',
+
+
+  sideEffects: 'idempotent',
 //
 //
   inputs: {
@@ -38,19 +41,19 @@ module.exports = {
   exits: {
 //
     success: {
-      description: 'The authentication process succeeded',
-      outputVariableName: 'report',
+      description: 'The authentication process succeeded.',
+      outputFriendlyName: 'Report',
       outputDescription: 'The `meta` property is reserved for custom driver-specific extensions.',
-      example: {
+      outputExample: {
         meta: '==='
       }
     },
 //
     failed: {
-      description: 'The attempt to authenticate failed',
-      outputVariableName: 'report',
+      description: 'The attempt to authenticate failed.',
+      outputFriendlyName: 'Report',
       outputDescription: 'The `error` property is a JavaScript Error instance with more information and a stack trace.  The `meta` property is reserved for custom driver-specific extensions.',
-      example: {
+      outputExample: {
         error: '===',
         meta: '==='
       }
@@ -59,6 +62,8 @@ module.exports = {
     badConnection: require('../constants/badConnection.exit')
 //
   },
+
+
   fn: function (inputs, exits){
     var isFunction = require('lodash.isfunction');
     var isObject = require('lodash.isobject');
@@ -74,7 +79,7 @@ module.exports = {
     redisClient.auth(inputs.password, function (err, result){
       if (err) {
         if (err.message === '') {
-          return exits.failed({error: "There was an error authenticating:" + err.message + '.' + err.stack});
+          return exits.failed({error: 'There was an error authenticating:' + err.message + '.' + err.stack});
         }
         return exits.error(err);
       }
