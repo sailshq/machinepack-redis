@@ -143,17 +143,16 @@ describe('destroyCachedValues()', function (){
 
       Pack.destroyCachedValues({
         connection: connection,
-        keys: "somekeytodelete"
+        keys: 'somekeytodelete'
       }).exec({
         error: function (err){
           return done();
         },
-        notFound: function (){
-          return done(new Error('Expecting `error` exit'));
-        },
-        success: function (){
-          return done(new Error('Expecting `error` exit'));
-        }
+        invalidKeys: function (report) { return done(new Error('Expecting `error` exit')); },
+        failed:  function (report) { return done(new Error('Expecting `error` exit')); },
+        badConnection:  function (report) { return done(new Error('Expecting `error` exit')); },
+        success: function (report){ return done(new Error('Expecting `error` exit')); }
+
       });
 
     });//</should fail when passed a string>
@@ -167,17 +166,15 @@ describe('destroyCachedValues()', function (){
         error: function (err){
           return done();
         },
-        notFound: function (){
-          return done(new Error('Expecting `error` exit'));
-        },
-        success: function (){
-          return done(new Error('Expecting `error` exit'));
-        }
+        invalidKeys: function (report) { return done(new Error('Expecting `error` exit')); },
+        failed:  function (report) { return done(new Error('Expecting `error` exit')); },
+        badConnection:  function (report) { return done(new Error('Expecting `error` exit')); },
+        success: function (report){ return done(new Error('Expecting `error` exit')); }
       });
 
     });//</it should fail when passed a number>
 
-    it('should fail when passed an object', function (done){
+    it('should fail when passed a dictionary', function (done){
 
       Pack.destroyCachedValues({
         connection: connection,
@@ -186,15 +183,13 @@ describe('destroyCachedValues()', function (){
         error: function (err){
           return done();
         },
-        notFound: function (){
-          return done(new Error('Expecting `error` exit'));
-        },
-        success: function (){
-          return done(new Error('Expecting `error` exit'));
-        }
+        invalidKeys: function (report) { return done(new Error('Expecting `error` exit')); },
+        failed:  function (report) { return done(new Error('Expecting `error` exit')); },
+        badConnection:  function (report) { return done(new Error('Expecting `error` exit')); },
+        success: function (report){ return done(new Error('Expecting `error` exit')); }
       });
 
-    });//</it should fail when passed a number>
+    });//</it should fail when passed a dictionary>
 
   });//</with basic usage>
 
