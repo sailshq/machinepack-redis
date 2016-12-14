@@ -64,7 +64,8 @@ describe('getCachedValue()', function (){
     // connection from it.  Also delete the specified keys, just to be safe.
     before(function (done){
       Pack.createManager({
-        connectionString: 'redis://127.0.0.1:6379',
+        // 15 = non standard database for the unit tests
+        connectionString: 'redis://127.0.0.1:6379/15',
         meta: {
           password: 'qwer1234'
         }
@@ -77,15 +78,19 @@ describe('getCachedValue()', function (){
           Pack.getConnection({
             manager: manager
           }).exec({
-            error: done,
+            error: function (err){
+              done(new Error(JSON.stringify(err)));
+            },
+            failed: function (err){
+              done(new Error(JSON.stringify(err)));
+            },
             success: function (report){
               // Save reference to connection.
               connection = report.connection;
 
               // Now delete keys just to be safe.
-              Pack.destroyCachedValues({
-                connection: connection,
-                keys: keysUsed
+              Pack.flushCache({
+                connection: connection
               }).exec(done);
             }
           });
@@ -154,27 +159,29 @@ describe('getCachedValue()', function (){
     });//</should exit `notFound` if the key expired>
 
 
-
     //  ┌─┐┌─┐┌┬┐┌─┐┬─┐
     //  ├─┤├┤  │ ├┤ ├┬┘
     //  ┴ ┴└   ┴ └─┘┴└─ooo
     // Afterwards, destroy the keys that were set, and then also destroy the manager
     // (which automatically releases any connections).
     after(function (done){
-      Pack.destroyCachedValues({
-        connection: connection,
-        keys: keysUsed
-      }).exec(function (err){
-        // If there is an error deleting keys, log it but don't stop
-        // (we need to be sure and destroy the manager)
-        if (err) {
-          console.error('ERROR: Could not destroy keys in test cleanup.  Details:\n', err);
-        }
-        Pack.destroyManager({
-          manager: manager
-        }).exec(done);
-      });
-    });//</after>
+      if (connection) {
+        Pack.flushCache({
+          connection: connection
+        }).exec(function (err){
+          // If there is an error deleting keys, log it but don't stop
+          // (we need to be sure and destroy the manager)
+          if (err) {
+            console.error('ERROR: Could not destroy keys in test cleanup.  Details:\n', err);
+          }
+          Pack.destroyManager({
+            manager: manager
+          }).exec(done);
+        });
+      } else {
+        done();
+      }
+    }); //</after>
 
 
   });//</with basic usage>

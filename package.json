@@ -46,7 +46,8 @@
       "release-connection",
       "get-cached-value",
       "cache-value",
-      "destroy-cached-values"
+      "destroy-cached-values",
+      "flush-cache"
     ],
     "implements": {
       "connectable": "1.0",

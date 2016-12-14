@@ -20,7 +20,8 @@ describe('getConnection()', function (){
 
     it('should connect with a password', function (done){
       Pack.createManager({
-        connectionString: 'redis://127.0.0.1:6379'
+        // 15 = non standard database for the unit tests
+        connectionString: 'redis://127.0.0.1:6379/15'
       }).exec({
         error: done,
         success: function (result){
@@ -29,7 +30,12 @@ describe('getConnection()', function (){
           Pack.getConnection({
             manager: manager
           }).exec({
-            error: done,
+            error: function (err){
+              done(new Error(JSON.stringify(err)));
+            },
+            failed: function (err){
+              done(new Error(JSON.stringify(err)));
+            },
             success: function (){
               done();
             }
@@ -40,7 +46,8 @@ describe('getConnection()', function (){
 
     it('should fail to connect to an invalid port', function (done){
       Pack.createManager({
-        connectionString: 'redis://127.0.0.1:9999',
+        // 15 = non standard database for the unit tests
+        connectionString: 'redis://127.0.0.1:9999/15',
         meta: {
           connect_timeout: 1000,
           retry_strategy: function (){
