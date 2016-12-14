@@ -6,7 +6,6 @@ var Pack = require('../');
 var shouldProperlyStoreValue = require('./helpers/should-properly-store-value.test-helper');
 
 
-
 /**
  * Note: These tests should ideally not be redis-specific.
  * (that way we can reuse them for any driver implementing the "cache" interface layer)
@@ -24,10 +23,9 @@ describe('getConnection()', function (){
         connectionString: 'redis://127.0.0.1:6379'
       }).exec({
         error: done,
-        success: function (report){
+        success: function (result){
           // Save reference to manager.
-          var manager = report.manager;
-
+          var manager = result.manager;
           Pack.getConnection({
             manager: manager
           }).exec({
@@ -41,7 +39,7 @@ describe('getConnection()', function (){
     }); //</should connect with a password>
 
     it('should fail to connect to an invalid port', function (done){
-      var manager = Pack.createManager({
+      Pack.createManager({
         connectionString: 'redis://127.0.0.1:9999',
         meta: {
           connect_timeout: 1000,
@@ -51,13 +49,12 @@ describe('getConnection()', function (){
         }
       }).exec({
         error: done,
-        success: function (report){
-
+        success: function (result){
           Pack.getConnection({
-            manager: manager
+            manager: result.manager
           }).exec({
             error: done,
-            failed: function (result){
+            failed: function (){
               done();
             },
             success: function (){
