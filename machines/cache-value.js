@@ -95,24 +95,23 @@ module.exports = {
     // but probably not a good idea right now.
     inputs.value = JSON.stringify(inputs.value);
 
-    // Set up the redis set callback that will be used by both set or setex
-    var redisSetCallback = function (err){
-      if (err) {
-        return exits.error(err);
-      }
-      return exits.success();
-    };
-
     // If a TTL is set and its greater than zero, use SETEX as it is atomic
     // and is the equivalent of:
     // * SET mykey value
     // * EXPIRE mykey seconds
     // http://redis.io/commands/setex
-    if (inputs.ttl > 0) {
-      redisClient.setex(inputs.key, inputs.ttl, inputs.value, redisSetCallback);
-    } else {
-      redisClient.set(inputs.key, inputs.value, redisSetCallback);
-    }
+    (function (proceed){
+      if (inputs.ttl > 0) {
+        redisClient.setex(inputs.key, inputs.ttl, inputs.value, proceed);
+      } else {
+        redisClient.set(inputs.key, inputs.value, proceed);
+      }
+    })(function afterSetOrSetEx(err){
+      if (err) {
+        return exits.error(err);
+      }
+      return exits.success();
+    });//</self-calling function>
 
   }
 };
