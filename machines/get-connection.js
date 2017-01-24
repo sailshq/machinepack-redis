@@ -21,6 +21,13 @@ module.exports = {
       example: '===',
       required: true
     },
+
+    timeout: {
+      friendlyName: 'Timeout',
+      description: 'The amount of time, in milliseconds, to allow for a successful connection to take place.',
+      example: 10000,
+      defaultsTo: 15000
+    },
 //
     meta: {
       friendlyName: 'Meta (custom)',
@@ -89,6 +96,9 @@ module.exports = {
     //  • https://github.com/NodeRedis/node_redis#options-is-an-object-with-the-following-possible-properties
     var redisClientOptions = inputs.manager.meta || {};
 
+    // Declare a var to hold the Redis connection timeout identifier, so it can be cleared later.
+    var redisConnectionTimeout;
+
     // Create Redis client
     var client;
     try {
@@ -117,6 +127,7 @@ module.exports = {
       redisConnectionError = err;
     }
     function onPreConnectionEnd (){
+      clearTimeout(redisConnectionTimeout);
       client.removeListener('end', onPreConnectionEnd);
       client.removeListener('error', onPreConnectionError);
 
@@ -127,6 +138,12 @@ module.exports = {
         error: redisConnectionError || new Error('Redis client fired "end" event before it finished connecting.')
       });
     }
+
+    // Add a timeout for the initial Redis session connection.
+    redisConnectionTimeout = setTimeout(function() {
+      return exits.error(flaverr('E_REDIS_CONNECTION_TIMED_OUT', new Error('Took too long to connect to the specified Redis session server.\nYou can change the allowed connection time by setting the `timeout` input (currently ' + inputs.timeout + 'ms).')));
+    }, inputs.timeout);
+
     ////////////////////////////////////////////////////////////////////////
 
     // Bind an "error" listener so that we can track errors that occur
@@ -139,6 +156,7 @@ module.exports = {
 
     // Bind a "ready" listener so that we know when the client has connected.
     client.once('ready', function onConnectionReady (){
+      clearTimeout(redisConnectionTimeout);
       client.removeListener('end', onPreConnectionEnd);
       client.removeListener('error', onPreConnectionError);
 
