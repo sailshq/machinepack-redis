@@ -171,20 +171,40 @@ module.exports = {
           return;
         }
 
+        var errToSend = new Error;
+        errToSend.connection = client;
+        errToSend.failureType = 'error';
+
         if (err) {
+          errToSend.originalError = err;
           if (/ECONNREFUSED/g.test(err)) {
-            inputs.manager.onUnexpectedFailure(new Error(
-              'Error emitted from Redis client: Connection to Redis server was lost (ECONNREFUSED). ' +
-              'Waiting for Redis client to come back online (if configured to do so, auto-reconnecting behavior ' +
-              'is happening in the background). Currently there are ' + client.connections + ' underlying Redis connections.\n' +
-              'Error details:' + err.stack
-              ));
+            errToSend.message =
+                'Error emitted from Redis client: Connection to Redis server was lost (ECONNREFUSED). ' +
+                'Waiting for Redis client to come back online (if configured to do so, auto-reconnecting behavior ' +
+                'is happening in the background). Currently there are ' + client.connections + ' underlying Redis connections.\n' +
+                'Error details:' + err.stack;
           } else {
-            inputs.manager.onUnexpectedFailure(new Error('Error emitted from Redis client.\nError details:' + err.stack));
+            errToSend.message = 'Error emitted from Redis client.\nError details:' + err.stack;
           }
         } else {
-          inputs.manager.onUnexpectedFailure(new Error('Error emitted from Redis client.\n (no other information available)'));
+          errToSend.message = 'Error emitted from Redis client.\n (no other information available)';
         }
+
+        inputs.manager.onUnexpectedFailure(errToSend);
+      });
+
+      client.on('end', function onIntraConnectionEnd () {
+        // If manager was not provisioned with an `onUnexpectedFailure`,
+        // we'll just handle this error event silently (to prevent crashing).
+        if (!_.isFunction(inputs.manager.onUnexpectedFailure)) {
+          return;
+        }
+
+        var errToSend = new Error('Redis client disconnected.');
+        errToSend.connection = client;
+        errToSend.failureType = 'end';
+        inputs.manager.onUnexpectedFailure(errToSend);
+
       });
 
       // Now track this Redis client as one of the "redisClients" on our manager
