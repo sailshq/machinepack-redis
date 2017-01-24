@@ -21,6 +21,13 @@ module.exports = {
       example: '===',
       required: true
     },
+
+    timeout: {
+      friendlyName: 'Timeout',
+      description: 'The amount of time, in milliseconds, to allow for a successful connection to take place.',
+      example: 10000,
+      defaultsTo: 15000
+    },
 //
     meta: {
       friendlyName: 'Meta (custom)',
@@ -77,8 +84,9 @@ module.exports = {
 //
 //
   fn: function (inputs, exits){
-    var isFunction = require('lodash.isfunction');
+    var _ = require('@sailshq/lodash');
     var redis = require('redis');
+    var flaverr = require('flaverr');
 
     // Build a local variable (`redisClientOptions`) to house a dictionary
     // of additional Redis client options that will be passed into createClient().
@@ -87,6 +95,9 @@ module.exports = {
     // For a complete list of available options, see:
     //  • https://github.com/NodeRedis/node_redis#rediscreateclient
     var redisClientOptions = inputs.manager.meta || {};
+
+    // Declare a var to hold the Redis connection timeout identifier, so it can be cleared later.
+    var redisConnectionTimeout;
 
     // Create Redis client
     var client;
@@ -116,6 +127,7 @@ module.exports = {
       redisConnectionError = err;
     }
     function onPreConnectionEnd (){
+      clearTimeout(redisConnectionTimeout);
       client.removeListener('end', onPreConnectionEnd);
       client.removeListener('error', onPreConnectionError);
 
@@ -126,6 +138,12 @@ module.exports = {
         error: redisConnectionError || new Error('Redis client fired "end" event before it finished connecting.')
       });
     }
+
+    // Add a timeout for the initial Redis session connection.
+    redisConnectionTimeout = setTimeout(function() {
+      return exits.error(flaverr('E_REDIS_CONNECTION_TIMED_OUT', new Error('Took too long to connect to the specified Redis session server.\nYou can change the allowed connection time by setting the `timeout` input (currently ' + inputs.timeout + 'ms).')));
+    }, inputs.timeout);
+
     ////////////////////////////////////////////////////////////////////////
 
     // Bind an "error" listener so that we can track errors that occur
@@ -138,6 +156,7 @@ module.exports = {
 
     // Bind a "ready" listener so that we know when the client has connected.
     client.once('ready', function onConnectionReady (){
+      clearTimeout(redisConnectionTimeout);
       client.removeListener('end', onPreConnectionEnd);
       client.removeListener('error', onPreConnectionError);
 
@@ -148,24 +167,44 @@ module.exports = {
       client.on('error', function onIntraConnectionError (err){
         // If manager was not provisioned with an `onUnexpectedFailure`,
         // we'll just handle this error event silently (to prevent crashing).
-        if (!isFunction(inputs.manager.onUnexpectedFailure)) {
+        if (!_.isFunction(inputs.manager.onUnexpectedFailure)) {
           return;
         }
 
+        var errToSend = new Error;
+        errToSend.connection = client;
+        errToSend.failureType = 'error';
+
         if (err) {
+          errToSend.originalError = err;
           if (/ECONNREFUSED/g.test(err)) {
-            inputs.manager.onUnexpectedFailure(new Error(
-              'Error emitted from Redis client: Connection to Redis server was lost (ECONNREFUSED). ' +
-              'Waiting for Redis client to come back online (if configured to do so, auto-reconnecting behavior ' +
-              'is happening in the background). Currently there are ' + client.connections + ' underlying Redis connections.\n' +
-              'Error details:' + err.stack
-              ));
+            errToSend.message =
+                'Error emitted from Redis client: Connection to Redis server was lost (ECONNREFUSED). ' +
+                'Waiting for Redis client to come back online (if configured to do so, auto-reconnecting behavior ' +
+                'is happening in the background). Currently there are ' + client.connections + ' underlying Redis connections.\n' +
+                'Error details:' + err.stack;
           } else {
-            inputs.manager.onUnexpectedFailure(new Error('Error emitted from Redis client.\nError details:' + err.stack));
+            errToSend.message = 'Error emitted from Redis client.\nError details:' + err.stack;
           }
         } else {
-          inputs.manager.onUnexpectedFailure(new Error('Error emitted from Redis client.\n (no other information available)'));
+          errToSend.message = 'Error emitted from Redis client.\n (no other information available)';
         }
+
+        inputs.manager.onUnexpectedFailure(errToSend);
+      });
+
+      client.on('end', function onIntraConnectionEnd () {
+        // If manager was not provisioned with an `onUnexpectedFailure`,
+        // we'll just handle this error event silently (to prevent crashing).
+        if (!_.isFunction(inputs.manager.onUnexpectedFailure)) {
+          return;
+        }
+
+        var errToSend = new Error('Redis client disconnected.');
+        errToSend.connection = client;
+        errToSend.failureType = 'end';
+        inputs.manager.onUnexpectedFailure(errToSend);
+
       });
 
       // Now track this Redis client as one of the "redisClients" on our manager

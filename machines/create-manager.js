@@ -24,7 +24,7 @@ module.exports = {
 //
     connectionString: {
       description: 'A string containing all metadata and credentials necessary for connecting to the Redis database.',
-      example: 'redis://127.0.0.1:6379',
+      example: 'redis://:secret@127.0.0.1:6379/12',
       required: true
     },
 //
@@ -112,13 +112,12 @@ module.exports = {
 //
   fn: function (inputs, exits){
     var Url = require('url');
-    var isObject = require('lodash.isobject');
-    var isFunction = require('lodash.isfunction');
+    var _ = require('@sailshq/lodash');
 
     // Ensure that, if provided, `meta` is a dictionary.
     // This will be used as additional Redis client options.
     if (inputs.meta !== undefined) {
-      if (!isObject(inputs.meta) || isFunction(inputs.meta)) {
+      if (!_.isObject(inputs.meta) || _.isFunction(inputs.meta)) {
         return exits.error('If provided, `meta` must be a dictionary.');
       }
     }
