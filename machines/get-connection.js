@@ -77,8 +77,9 @@ module.exports = {
 //
 //
   fn: function (inputs, exits){
-    var isFunction = require('lodash.isfunction');
+    var _ = require('@sailshq/lodash');
     var redis = require('redis');
+    var flaverr = require('flaverr');
 
     // Build a local variable (`redisClientOptions`) to house a dictionary
     // of additional Redis client options that will be passed into createClient().
@@ -148,7 +149,7 @@ module.exports = {
       client.on('error', function onIntraConnectionError (err){
         // If manager was not provisioned with an `onUnexpectedFailure`,
         // we'll just handle this error event silently (to prevent crashing).
-        if (!isFunction(inputs.manager.onUnexpectedFailure)) {
+        if (!_.isFunction(inputs.manager.onUnexpectedFailure)) {
           return;
         }
 
