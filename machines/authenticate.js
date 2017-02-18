@@ -75,7 +75,7 @@ module.exports = {
     // Provided `connection` is a redis client.
     var redisClient = inputs.connection;
 
-    redisClient.auth(inputs.password, function (err, result){
+    redisClient.auth(inputs.password, function (err){
       if (err) {
         if (err.message === '') {
           return exits.failed({error: 'There was an error authenticating:' + err.message + '.' + err.stack});
