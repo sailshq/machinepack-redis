@@ -213,7 +213,7 @@ module.exports = {
 
       // Save a reference to our manager instance on the redis client.
       if (client._fromWLManager) {
-        return exits.error('Consistency violation: Somehow, a `_fromWLManager` key already exists on this Redis client instance!');
+        return exits.error(new Error('Consistency violation: Somehow, a `_fromWLManager` key already exists on this Redis client instance!'));
       }
       client._fromWLManager = inputs.manager;
 
