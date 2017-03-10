@@ -124,6 +124,17 @@ module.exports = {
     // the second argument to `removeListener()`)
     var redisConnectionError;
     function onPreConnectionError (err){
+      // If this is an authentication error (i.e. bad password), then
+      // we won't be getting an `end` event, so we'll bail out immediately.
+      if (err.command === 'AUTH' && err.code === 'ERR') {
+        client.removeListener('end', onPreConnectionEnd);
+        client.removeListener('error', onPreConnectionError);
+        // Swallow follow-on errors.
+        client.on('error', function(){});
+        return exits.failed({
+          error: new Error('The password supplied to the Redis server was incorrect.')
+        });
+      }
       redisConnectionError = err;
     }
     function onPreConnectionEnd (){
