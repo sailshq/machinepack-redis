@@ -24,12 +24,12 @@ module.exports = {
       defaultsTo: '6379'
     },
 //
-    password: {
+    pass: {
       description: 'The password (if any) for the Redis server.',
       example: 'iheartredis'
     },
 //
-    database: {
+    db: {
       description: 'The index of the database to connect to.',
       example: 123
     }
@@ -54,8 +54,8 @@ module.exports = {
     var url = 'redis://';
 
     // Add the optional password.
-    if (inputs.password) {
-      url += ':' + inputs.password + '@';
+    if (inputs.pass) {
+      url += ':' + inputs.pass + '@';
     }
 
     // Add the host.
@@ -65,8 +65,8 @@ module.exports = {
     url += ':' + inputs.port;
 
     // Add the optional database.
-    if (inputs.database) {
-      url += '/' + inputs.database;
+    if (inputs.db) {
+      url += '/' + inputs.db;
     }
 
     // Return the finished URL through the "success" exit.
