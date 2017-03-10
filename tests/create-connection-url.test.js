@@ -30,8 +30,8 @@ describe('createConnectionUrl()', function (){
       var url = Pack.createConnectionUrl({
         host: 'redis2go.com',
         port: 6380,
-        password: 'secret',
-        database: 15
+        pass: 'secret',
+        db: 15
       }).execSync();
 
       assert.equal(url, 'redis://:secret@redis2go.com:6380/15');
