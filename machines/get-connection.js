@@ -132,7 +132,18 @@ module.exports = {
         // Swallow follow-on errors.
         client.on('error', function(){});
         return exits.failed({
-          error: new Error('The password supplied to the Redis server was incorrect.')
+          error: flaverr('ERR_BAD_PASSWORD', new Error('The password supplied to the Redis server was incorrect.'))
+        });
+      }
+      // If this is an authentication "info" event (i.e. NO password was supplied),
+      // and the `authLater` meta key isn't `true`, bail out immediately.
+      if (err.command === 'INFO' && err.code === 'NOAUTH' && inputs.meta.authLater !== true) {
+        client.removeListener('end', onPreConnectionEnd);
+        client.removeListener('error', onPreConnectionError);
+        // Swallow follow-on errors.
+        client.on('error', function(){});
+        return exits.failed({
+          error: flaverr('ERR_NO_PASSWORD', new Error('The Redis server requires a password, but none was supplied.'))
         });
       }
       redisConnectionError = err;
