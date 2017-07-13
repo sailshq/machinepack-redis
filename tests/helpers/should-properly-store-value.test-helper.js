@@ -19,7 +19,7 @@ var Pack = require('../../');
  * @param  {Function} done
  */
 
-module.exports = function shouldProperlyStoreValue (opts, done){
+module.exports = function shouldProperlyStoreValue(opts, done){
   Pack.cacheValue({
     connection: opts.connection,
     key: opts.key,

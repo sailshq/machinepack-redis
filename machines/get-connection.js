@@ -90,10 +90,10 @@ module.exports = {
 
     // Build a local variable (`redisClientOptions`) to house a dictionary
     // of additional Redis client options that will be passed into createClient().
-    // (this is pulled from the `meta` mananger)
+    // (this is pulled from the `meta` manager)
     //
     // For a complete list of available options, see:
-    //  • https://github.com/NodeRedis/node_redis#options-is-an-object-with-the-following-possible-properties
+    //  • https://github.com/NodeRedis/node_redis#rediscreateclient
     var redisClientOptions = inputs.manager.meta || {};
 
     // Declare a var to hold the Redis connection timeout identifier, so it can be cleared later.
@@ -102,7 +102,7 @@ module.exports = {
     // Create Redis client
     var client;
     try {
-
+      // [redis:]//[[user][:password]@][host][:port][/db-number][?db=db-number[&password=bar[&option=value]]]
       client = redis.createClient(inputs.manager.connectionString, redisClientOptions);
     } catch (e) {
       // If a "TypeError" was thrown, it means something was wrong with

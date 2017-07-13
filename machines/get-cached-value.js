@@ -1,17 +1,17 @@
 module.exports = {
-//
-//
+
+
   friendlyName: 'Get cached value',
-//
-//
+
+
   description: 'Look up the cached value associated with the specified key.',
-//
-//
+
+
   sideEffects: 'cacheable',
-//
-//
+
+
   inputs: {
-//
+
     connection: {
       friendlyName: 'Connection',
       description: 'An active Redis connection.',
@@ -19,7 +19,7 @@ module.exports = {
       example: '===',
       required: true
     },
-//
+
     key: {
       friendlyName: 'Key',
       description: 'The unique key to look up.',
@@ -27,19 +27,19 @@ module.exports = {
       required: true,
       example: 'myNamespace.foo.bar_baz'
     },
-//
+
     meta: {
       friendlyName: 'Meta (custom)',
       description: 'Additional metadata to pass to the driver.',
       extendedDescription: 'This input is not currently in use, but is reserved for driver-specific customizations in the future.',
       example: '==='
     }
-//
+
   },
-//
-//
+
+
   exits: {
-//
+
     success: {
       description: 'Value was sucessfully fetched.',
       outputFriendlyName: 'Report',
@@ -49,7 +49,7 @@ module.exports = {
         meta: '==='
       }
     },
-//
+
     notFound: {
       description: 'No value exists under the specified key.',
       outputFriendlyName: 'Report',
@@ -58,9 +58,9 @@ module.exports = {
         meta: '==='
       }
     },
-//
+
     badConnection: require('../constants/badConnection.exit')
-//
+
   },
 
 
@@ -73,10 +73,13 @@ module.exports = {
     }
 
     // Provided `connection` is a redis client.
+    /**
+     * redisClient red
+     */
     var redisClient = inputs.connection;
 
 
-    redisClient.get(inputs.key, function (err, foundValue){
+    redisClient.get(inputs.key, function (err, foundValue) {
       if (err) {
         return exits.error(err);
       }
@@ -92,8 +95,8 @@ module.exports = {
       try {
         foundValue = JSON.parse(foundValue);
       }
-      //// Since we're in a callback, we need to use a try/catch to prevent
-      // throwing an uncaught exception and crashing the process.
+        //// Since we're in a callback, we need to use a try/catch to prevent
+        // throwing an uncaught exception and crashing the process.
       catch (e) {
         return exits.error(e);
       }
