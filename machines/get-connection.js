@@ -124,6 +124,28 @@ module.exports = {
     // the second argument to `removeListener()`)
     var redisConnectionError;
     function onPreConnectionError (err){
+      // If this is an authentication error (i.e. bad password), then
+      // we won't be getting an `end` event, so we'll bail out immediately.
+      if (err.command === 'AUTH' && err.code === 'ERR') {
+        client.removeListener('end', onPreConnectionEnd);
+        client.removeListener('error', onPreConnectionError);
+        // Swallow follow-on errors.
+        client.on('error', function(){});
+        return exits.failed({
+          error: flaverr('ERR_BAD_PASSWORD', new Error('The password supplied to the Redis server was incorrect.'))
+        });
+      }
+      // If this is an authentication "info" event (i.e. NO password was supplied),
+      // and the `authLater` meta key isn't `true`, bail out immediately.
+      if (err.command === 'INFO' && err.code === 'NOAUTH' && inputs.meta.authLater !== true) {
+        client.removeListener('end', onPreConnectionEnd);
+        client.removeListener('error', onPreConnectionError);
+        // Swallow follow-on errors.
+        client.on('error', function(){});
+        return exits.failed({
+          error: flaverr('ERR_NO_PASSWORD', new Error('The Redis server requires a password, but none was supplied.'))
+        });
+      }
       redisConnectionError = err;
     }
     function onPreConnectionEnd (){
@@ -213,7 +235,7 @@ module.exports = {
 
       // Save a reference to our manager instance on the redis client.
       if (client._fromWLManager) {
-        return exits.error('Consistency violation: Somehow, a `_fromWLManager` key already exists on this Redis client instance!');
+        return exits.error(new Error('Consistency violation: Somehow, a `_fromWLManager` key already exists on this Redis client instance!'));
       }
       client._fromWLManager = inputs.manager;
 
