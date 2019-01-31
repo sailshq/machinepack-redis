@@ -12,10 +12,10 @@
 language: node_js
 
 node_js:
-  - "0.10"
-  - "0.12"
   - "4"
   - "6"
+  - "8"
+  - "10"
   - "node"
 
 branches:
@@ -25,6 +25,3 @@ branches:
 notifications:
   email:
     - ci@sailsjs.com
-
-# Provide Travis with access to a Redis server
-before_script: sudo redis-server /etc/redis/redis.conf
