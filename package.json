@@ -35,6 +35,9 @@
     "eslint": "4.11.0",
     "mocha": "3.0.2"
   },
+  "engines": {
+    "node": "^6.0"
+  },
   "machinepack": {
     "friendlyName": "Redis",
     "machineDir": "machines/",
