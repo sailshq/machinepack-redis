@@ -2,19 +2,19 @@ module.exports = {
 //
 //
   friendlyName: 'Cache value',
-//
-//
+  //
+  //
   description: 'Cache a value using the specified key.',
-//
-//
+  //
+  //
   extendedDescription: 'If a `ttl` ("time-to-live") timeout is specified, the key will be deleted automatically after the specified number of seconds.',
 
 
   sideEffects: 'idempotent',
-//
-//
+  //
+  //
   inputs: {
-//
+    //
     connection: {
       friendlyName: 'Connection',
       description: 'An active Redis connection.',
@@ -22,7 +22,7 @@ module.exports = {
       example: '===',
       required: true
     },
-//
+    //
     key: {
       friendlyName: 'Key',
       description: 'The unique key under which this value should be stored.',
@@ -30,7 +30,7 @@ module.exports = {
       required: true,
       example: 'myNamespace.foo.bar_baz'
     },
-//
+    //
     value: {
       friendlyName: 'Value',
       description: 'The value to cache.',
@@ -38,26 +38,26 @@ module.exports = {
       required: true,
       example: '*'
     },
-//
+    //
     ttl: {
       friendlyName: 'Time-to-live (TTL)',
       description: 'The number of seconds to store this value before automatically deleting it.',
       extendedDescription: 'For example, to keep the value cached for 24 hours, use `86400` (24 hours * 60 minutes * 60 seconds).  If `ttl` is left unspecified, the key will not be deleted automatically-- i.e. it will be cached _forever_.',
       example: 86400
     },
-//
+    //
     meta: {
       friendlyName: 'Meta (custom)',
       description: 'Additional metadata to pass to the driver.',
       extendedDescription: 'This input is not currently in use, but is reserved for driver-specific customizations in the future.',
       example: '==='
     }
-//
+    //
   },
-//
-//
+  //
+  //
   exits: {
-//
+    //
     success: {
       description: 'Value was sucessfully written.',
       outputFriendlyName: 'Report',
@@ -66,12 +66,12 @@ module.exports = {
         meta: '==='
       }
     },
-//
+    //
     badConnection: require('../constants/badConnection.exit')
-//
+    //
   },
-//
-//
+  //
+  //
   fn: function (inputs, exits){
     var _ = require('@sailshq/lodash');
 
@@ -105,7 +105,7 @@ module.exports = {
       } else {
         redisClient.set(inputs.key, inputs.value, proceed);
       }
-    })(function afterSetOrSetEx(err){
+    })((err)=>{
       if (err) {
         return exits.error(err);
       }

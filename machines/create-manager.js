@@ -2,11 +2,11 @@ module.exports = {
 //
 //
   friendlyName: 'Create manager',
-//
-//
+  //
+  //
   description: 'Build and initialize a connection manager instance for this Redis database.',
-//
-//
+  //
+  //
   extendedDescription:
     'The `manager` instance returned by this method contains any configuration that is necessary ' +
     'for communicating with the database and establishing connections (e.g. host, user, password) ' +
@@ -16,18 +16,18 @@ module.exports = {
     'Note that a manager instance does not necessarily need to correspond with a pool though--' +
     'it might simply be a container for storing config, or it might refer to multiple pools ' +
     '(e.g. a PoolCluster from felixge\'s `mysql` package).',
-//
+  //
   moreInfoUrl: 'https://github.com/NodeRedis/node_redis#rediscreateclient',
-//
-//
+  //
+  //
   inputs: {
-//
+    //
     connectionString: {
       description: 'A string containing all metadata and credentials necessary for connecting to the Redis database.',
       example: 'redis://:secret@127.0.0.1:6379/12',
       required: true
     },
-//
+    //
     onUnexpectedFailure: {
       description: 'A function to call any time an unexpected error event is received from this manager or any of its connections.',
       extendedDescription:
@@ -42,7 +42,7 @@ module.exports = {
         '```',
       example: '->'
     },
-//
+    //
     meta: {
       friendlyName: 'Meta (custom)',
       description: 'Additional Redis-specific options to use when connecting.',
@@ -50,12 +50,12 @@ module.exports = {
       moreInfoUrl: 'https://github.com/NodeRedis/node_redis#options-is-an-object-with-the-following-possible-properties',
       example: '==='
     }
-//
+    //
   },
-//
-//
+  //
+  //
   exits: {
-//
+    //
     success: {
       description: 'The manager was successfully created.',
       extendedDescription:
@@ -71,7 +71,7 @@ module.exports = {
         meta: '==='
       }
     },
-//
+    //
     malformed: {
       description: 'The provided connection string is not valid for MySQL.',
       outputFriendlyName: 'Report',
@@ -81,7 +81,7 @@ module.exports = {
         meta: '==='
       }
     },
-//
+    //
     failed: {
       description: 'Could not create a connection manager for this database using the specified connection string.',
       extendedDescription:
@@ -106,10 +106,10 @@ module.exports = {
         meta: '==='
       }
     }
-//
+    //
   },
-//
-//
+  //
+  //
   fn: function (inputs, exits){
     var Url = require('url');
     var _ = require('@sailshq/lodash');

@@ -1,17 +1,17 @@
 module.exports = {
-//
-//
+
+
   friendlyName: 'Authenticate',
-//
-//
+
+
   description: 'Authenticate an active connection with its connected Redis server.',
 
 
   sideEffects: 'idempotent',
-//
-//
+  //
+  //
   inputs: {
-//
+    //
     connection: {
       friendlyName: 'Connection',
       description: 'An active Redis connection.',
@@ -19,7 +19,7 @@ module.exports = {
       example: '===',
       required: true
     },
-//
+    //
     password: {
       friendlyName: 'Password',
       description: 'The password to pass to a connection for authentication',
@@ -27,19 +27,19 @@ module.exports = {
       required: true,
       example: 'mysupercomplexpass'
     },
-//
+    //
     meta: {
       friendlyName: 'Meta (custom)',
       description: 'Additional metadata to pass to the driver.',
       extendedDescription: 'This input is not currently in use, but is reserved for driver-specific customizations in the future.',
       example: '==='
     }
-//
+    //
   },
-//
-//
+  //
+  //
   exits: {
-//
+    //
     success: {
       description: 'The authentication process succeeded.',
       outputFriendlyName: 'Report',
@@ -48,7 +48,7 @@ module.exports = {
         meta: '==='
       }
     },
-//
+    //
     failed: {
       description: 'The attempt to authenticate failed.',
       outputFriendlyName: 'Report',
@@ -58,9 +58,9 @@ module.exports = {
         meta: '==='
       }
     },
-//
+    //
     badConnection: require('../constants/badConnection.exit')
-//
+    //
   },
 
 
@@ -75,7 +75,7 @@ module.exports = {
     // Provided `connection` is a redis client.
     var redisClient = inputs.connection;
 
-    redisClient.auth(inputs.password, function (err){
+    redisClient.auth(inputs.password, (err)=>{
       if (err) {
         if (err.message === '') {
           return exits.failed({error: 'There was an error authenticating:' + err.message + '.' + err.stack});
@@ -83,7 +83,7 @@ module.exports = {
         return exits.error(err);
       }
       return exits.success();
-    });
+    });//_∏_
 
   }
 
