@@ -32,7 +32,8 @@ describe('destroyCachedValues()', () => {
     Pack.createManager({
       connectionString: 'redis://127.0.0.1:6379',
       meta: {
-        auth_pass: 'qwer1234' // use alternative option
+        auth_pass: 'qwer1234'//eslint-disable-line camelcase
+        // ^^use alternative option
       }
     }).switch({
       error: done,
@@ -145,7 +146,7 @@ describe('destroyCachedValues()', () => {
         connection: connection,
         keys: 'somekeytodelete'
       }).switch({
-        error: function (err){
+        error: function (unusedErr){
           return done();
         },
         invalidKeys: function (report) { return done(new Error('Expecting `error` exit')); },
@@ -163,7 +164,7 @@ describe('destroyCachedValues()', () => {
         connection: connection,
         keys: 1
       }).switch({
-        error: function (err){
+        error: function (unusedErr){
           return done();
         },
         invalidKeys: function (report) { return done(new Error('Expecting `error` exit')); },
@@ -180,7 +181,7 @@ describe('destroyCachedValues()', () => {
         connection: connection,
         keys: {}
       }).switch({
-        error: function (err){
+        error: function (unusedErr){
           return done();
         },
         invalidKeys: function (report) { return done(new Error('Expecting `error` exit')); },

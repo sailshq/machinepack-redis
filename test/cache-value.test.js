@@ -192,7 +192,7 @@ describe('cacheValue()', () => {
         key: {},
         value: ''
       }).switch({
-        error: function (err){
+        error: function (unusedErr){
           done();
         },
         success: function (){
@@ -207,7 +207,7 @@ describe('cacheValue()', () => {
         key: [],
         value: ''
       }).switch({
-        error: function (err){
+        error: function (unusedErr){
           done();
         },
         success: function (){
@@ -227,7 +227,7 @@ describe('cacheValue()', () => {
         ttl: 1
       }).switch({
         error: function (err){
-          return done(new Error('Expecting `success` exit'));
+          return done(new Error('Expecting this to work with no error but instead got: '+err.stack));
         },
         success: function (){
           // first check that it exists in the next 500ms
