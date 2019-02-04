@@ -12,7 +12,7 @@ var shouldProperlyStoreValue = require('./helpers/should-properly-store-value.te
  * (that way we can reuse them for any driver implementing the "cache" interface layer)
  */
 
-describe('cacheValue()', function (){
+describe('cacheValue()', () => {
 
 // Used to hold manager and active connection throughout the tests below.
   var manager;
@@ -28,8 +28,8 @@ describe('cacheValue()', function (){
   //| | | | (_) | | (_| (_) | | | | | | |  __/ (__| |_| | (_) | | | |
   //|_| |_|\___/   \___\___/|_| |_|_| |_|\___|\___|\__|_|\___/|_| |_|
   //
-  describe('with no connection', function (){
-    it('should fail', function (done){
+  describe('with no connection', () => {
+    it('should fail', (done) => {
       Pack.cacheValue({
         connection: {},
         key: keysUsed[1],
@@ -50,7 +50,7 @@ describe('cacheValue()', function (){
   //  ╔╗ ╔═╗╔═╗╦╔═╗  ╦ ╦╔═╗╔═╗╔═╗╔═╗
   //  ╠╩╗╠═╣╚═╗║║    ║ ║╚═╗╠═╣║ ╦║╣
   //  ╚═╝╩ ╩╚═╝╩╚═╝  ╚═╝╚═╝╩ ╩╚═╝╚═╝
-  describe('with basic usage', function (){
+  describe('with basic usage', () => {
 
 
     //  ┌┐ ┌─┐┌─┐┌─┐┬─┐┌─┐
@@ -59,7 +59,7 @@ describe('cacheValue()', function (){
     //
     // Beforehand, create a manager and acquire an initial active
     // connection from it.
-    before(function (done){
+    before((done) => {
       Pack.createManager({
         connectionString: 'redis://127.0.0.1:6379',
         meta: {
@@ -89,7 +89,7 @@ describe('cacheValue()', function (){
     }); //</before>
 
 
-    it('should work', function (done){
+    it('should work', (done) => {
       Pack.cacheValue({
         connection: connection,
         key: keysUsed[1],
@@ -98,7 +98,7 @@ describe('cacheValue()', function (){
     }); //</it should work>
 
 
-    it('should properly store a string value', function (done){
+    it('should properly store a string value', (done) => {
       shouldProperlyStoreValue({
         connection: connection,
         key: keysUsed[2],
@@ -107,7 +107,7 @@ describe('cacheValue()', function (){
     }); //</should properly store a string value>
 
 
-    it('should properly store an object', function (done){
+    it('should properly store an object', (done) => {
       shouldProperlyStoreValue({
         connection: connection,
         key: keysUsed[3],
@@ -118,7 +118,7 @@ describe('cacheValue()', function (){
       }, done);
     }); //</should properly store an object>
 
-    it('should properly store an array', function (done){
+    it('should properly store an array', (done) => {
       shouldProperlyStoreValue({
         connection: connection,
         key: keysUsed[3],
@@ -136,7 +136,7 @@ describe('cacheValue()', function (){
       }, done);
     }); //</should properly store an array>
 
-    it('should properly store a number', function (done){
+    it('should properly store a number', (done) => {
       // (e.g. if you store `4` it shouldn't end up as `'4'` when it is retrieved)
       shouldProperlyStoreValue({
         connection: connection,
@@ -145,7 +145,7 @@ describe('cacheValue()', function (){
       }, done);
     }); //</should properly store a number>
 
-    it('should properly store `null`', function (done){
+    it('should properly store `null`', (done) => {
       shouldProperlyStoreValue({
         connection: connection,
         key: keysUsed[5],
@@ -153,7 +153,7 @@ describe('cacheValue()', function (){
       }, done);
     }); //</should properly store `null`>
 
-    it('should properly store `false`', function (done){
+    it('should properly store `false`', (done) => {
       shouldProperlyStoreValue({
         connection: connection,
         key: keysUsed[6],
@@ -161,7 +161,7 @@ describe('cacheValue()', function (){
       }, done);
     }); //</should properly store `false`>
 
-    it('should properly store `0`', function (done){
+    it('should properly store `0`', (done) => {
       shouldProperlyStoreValue({
         connection: connection,
         key: keysUsed[7],
@@ -169,7 +169,7 @@ describe('cacheValue()', function (){
       }, done);
     }); //</should properly store `0`>
 
-    it('should properly store empty string `\'\'`', function (done){
+    it('should properly store empty string `\'\'`', (done) => {
       shouldProperlyStoreValue({
         connection: connection,
         key: keysUsed[8],
@@ -178,7 +178,7 @@ describe('cacheValue()', function (){
     }); //</should properly store empty string `\'\'`>
 
     it('should properly store if the key is a number. It is converted to a key',
-      function (done){
+      (done) => {
         shouldProperlyStoreValue({
           connection: connection,
           key: keysUsed[0],
@@ -186,7 +186,7 @@ describe('cacheValue()', function (){
         }, done);
       }); //</should properly store if the key is a number. It is converted to a key>
 
-    it('should fail if key is an object', function (done){
+    it('should fail if key is an object', (done) => {
       Pack.cacheValue({
         connection: connection,
         key: {},
@@ -201,7 +201,7 @@ describe('cacheValue()', function (){
       });
     }); //</should fail if key is an object>
 
-    it('should fail if key is an array', function (done){
+    it('should fail if key is an array', (done) => {
       Pack.cacheValue({
         connection: connection,
         key: [],
@@ -231,7 +231,7 @@ describe('cacheValue()', function (){
         },
         success: function (){
           // first check that it exists in the next 500ms
-          setTimeout(function (){
+          setTimeout(() => {
             Pack.getCachedValue({
               connection: connection,
               key: keysUsed[1]
@@ -245,7 +245,7 @@ describe('cacheValue()', function (){
               },
               success: function (value){
                 // now check that it expired, after 1.5 secs
-                setTimeout(function (){
+                setTimeout(() => {
                   Pack.getCachedValue({
                     connection: connection,
                     key: keysUsed[1]
@@ -276,11 +276,11 @@ describe('cacheValue()', function (){
     //  ┴ ┴└   ┴ └─┘┴└─ooo
     // Afterwards, destroy the keys that were set, and then also destroy the manager
     // (which automatically releases any connections).
-    after(function (done){
+    after((done) => {
       Pack.destroyCachedValues({
         connection: connection,
         keys: keysUsed
-      }).exec(function (err){
+      }).exec((err) => {
         // If there is an error deleting keys, log it but don't stop
         // (we need to be sure and destroy the manager)
         if (err) {

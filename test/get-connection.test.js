@@ -11,14 +11,14 @@ var shouldProperlyStoreValue = require('./helpers/should-properly-store-value.te
  * (that way we can reuse them for any driver implementing the "cache" interface layer)
  */
 
-describe('getConnection()', function (){
+describe('getConnection()', () => {
 
   //  ╔╗ ╔═╗╔═╗╦╔═╗  ╦ ╦╔═╗╔═╗╔═╗╔═╗
   //  ╠╩╗╠═╣╚═╗║║    ║ ║╚═╗╠═╣║ ╦║╣
   //  ╚═╝╩ ╩╚═╝╩╚═╝  ╚═╝╚═╝╩ ╩╚═╝╚═╝
-  describe('with basic usage', function (){
+  describe('with basic usage', () => {
 
-    it('should connect with a password', function (done){
+    it('should connect with a password', (done) => {
       Pack.createManager({
         connectionString: 'redis://127.0.0.1:6379'
       }).switch({
@@ -38,7 +38,7 @@ describe('getConnection()', function (){
       });
     }); //</should connect with a password>
 
-    it('should fail to connect to an invalid port', function (done){
+    it('should fail to connect to an invalid port', (done) => {
       Pack.createManager({
         connectionString: 'redis://127.0.0.1:9999',
         meta: {

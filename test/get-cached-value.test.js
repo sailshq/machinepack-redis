@@ -11,7 +11,7 @@ var Pack = require('../');
  * (that way we can reuse them for any driver implementing the "cache" interface layer)
  */
 
-describe('getCachedValue()', function (){
+describe('getCachedValue()', () => {
 
   // Used to hold manager and active connection throughout the tests below.
   var manager;
@@ -21,15 +21,15 @@ describe('getCachedValue()', function (){
   // The keys to use during tests.
   var keysUsed = ['test1', 'test2', 'test3', 'test4', 'test5', 'test6', 'test7', 'test8'];
 
-  //                                               _   _             
-  //                                              | | (_)            
-  // _ __   ___     ___ ___  _ __  _ __   ___  ___| |_ _  ___  _ __  
-  //| '_ \ / _ \   / __/ _ \| '_ \| '_ \ / _ \/ __| __| |/ _ \| '_ \ 
+  //                                               _   _
+  //                                              | | (_)
+  // _ __   ___     ___ ___  _ __  _ __   ___  ___| |_ _  ___  _ __
+  //| '_ \ / _ \   / __/ _ \| '_ \| '_ \ / _ \/ __| __| |/ _ \| '_ \
   //| | | | (_) | | (_| (_) | | | | | | |  __/ (__| |_| | (_) | | | |
   //|_| |_|\___/   \___\___/|_| |_|_| |_|\___|\___|\__|_|\___/|_| |_|
-  //                                                                 
-  describe('with no connection', function (){
-    it('should fail', function (done){
+  //
+  describe('with no connection', () => {
+    it('should fail', (done) => {
       Pack.getCachedValue({
         connection: {},
         key: keysUsed[1]
@@ -53,7 +53,7 @@ describe('getCachedValue()', function (){
   //  ╔╗ ╔═╗╔═╗╦╔═╗  ╦ ╦╔═╗╔═╗╔═╗╔═╗
   //  ╠╩╗╠═╣╚═╗║║    ║ ║╚═╗╠═╣║ ╦║╣
   //  ╚═╝╩ ╩╚═╝╩╚═╝  ╚═╝╚═╝╩ ╩╚═╝╚═╝
-  describe('with basic usage', function (){
+  describe('with basic usage', () => {
 
 
     //  ┌┐ ┌─┐┌─┐┌─┐┬─┐┌─┐
@@ -62,7 +62,7 @@ describe('getCachedValue()', function (){
     //
     // Beforehand, create a manager and acquire an initial active
     // connection from it.  Also delete the specified keys, just to be safe.
-    before(function (done){
+    before((done) => {
       Pack.createManager({
         connectionString: 'redis://127.0.0.1:6379',
         meta: {
@@ -92,7 +92,7 @@ describe('getCachedValue()', function (){
         }
       });
     });//</before>
-    it('should work', function (done){
+    it('should work', (done) => {
       Pack.cacheValue({
         connection: connection,
         key: keysUsed[0],
@@ -109,7 +109,7 @@ describe('getCachedValue()', function (){
     });//</it should work>
 
 
-    it('should exit `notFound` if key does not exist', function (done){
+    it('should exit `notFound` if key does not exist', (done) => {
       Pack.getCachedValue({
         connection: connection,
         key: keysUsed[1]
@@ -125,7 +125,7 @@ describe('getCachedValue()', function (){
     });//</it should exit `notFound` if key does not exist>
 
 
-    it('should exit `notFound` if the key expired', function (done){
+    it('should exit `notFound` if the key expired', (done) => {
       Pack.cacheValue({
         connection: connection,
         key: keysUsed[0],
@@ -135,7 +135,7 @@ describe('getCachedValue()', function (){
         error: done,
         success: function (){
           setTimeout(
-            function (){
+            () => {
               Pack.getCachedValue({
                 connection: connection,
                 key: keysUsed[0]
@@ -160,11 +160,11 @@ describe('getCachedValue()', function (){
     //  ┴ ┴└   ┴ └─┘┴└─ooo
     // Afterwards, destroy the keys that were set, and then also destroy the manager
     // (which automatically releases any connections).
-    after(function (done){
+    after((done) => {
       Pack.destroyCachedValues({
         connection: connection,
         keys: keysUsed
-      }).exec(function (err){
+      }).exec((err) => {
         // If there is an error deleting keys, log it but don't stop
         // (we need to be sure and destroy the manager)
         if (err) {

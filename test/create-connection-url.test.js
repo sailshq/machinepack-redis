@@ -12,11 +12,11 @@ var shouldProperlyStoreValue = require('./helpers/should-properly-store-value.te
  * (that way we can reuse them for any driver implementing the "cache" interface layer)
  */
 
-describe('createConnectionUrl()', function (){
+describe('createConnectionUrl()', () => {
 
-  describe('with default inputs', function (){
+  describe('with default inputs', () => {
 
-    it ('should return the url redis://127.0.0.1:6379', function() {
+    it ('should return the url redis://127.0.0.1:6379', () => {
       var url = Pack.createConnectionUrl().execSync();
 
       assert.equal(url, 'redis://127.0.0.1:6379');
@@ -24,9 +24,9 @@ describe('createConnectionUrl()', function (){
 
   });
 
-  describe('with host \'redis2go.com\', port \'6380\', password \'secret\' and database \'15\'', function() {
+  describe('with host \'redis2go.com\', port \'6380\', password \'secret\' and database \'15\'', () => {
 
-    it ('should return the url redis://:secret@redis2go.com:6380/15', function() {
+    it ('should return the url redis://:secret@redis2go.com:6380/15', () => {
       var url = Pack.createConnectionUrl({
         host: 'redis2go.com',
         port: 6380,
