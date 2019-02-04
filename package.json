@@ -1,6 +1,6 @@
 {
   "name": "machinepack-redis",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Structured Node.js bindings for Redis.",
   "scripts": {
     "test": "node ./node_modules/mocha/bin/mocha test/*.js --timeout 5000 --slow 2000",
