@@ -17,24 +17,24 @@ describe('cacheValue()', function (){
 // Used to hold manager and active connection throughout the tests below.
   var manager;
   var connection;
-  // The keys to use during tests. Prefixed with `machinepack-redis.` so that 
+  // The keys to use during tests. Prefixed with `machinepack-redis.` so that
   // there is no key name clash with any other possible existing keys
   var keysUsed = [12345, 'machinepack-redis.test1', 'machinepack-redis.test2', 'machinepack-redis.test3', 'machinepack-redis.test4', 'machinepack-redis.test5', 'machinepack-redis.test6', 'machinepack-redis.test7', 'machinepack-redis.test8'];
 
-  //                                               _   _             
-  //                                              | | (_)            
-  // _ __   ___     ___ ___  _ __  _ __   ___  ___| |_ _  ___  _ __  
-  //| '_ \ / _ \   / __/ _ \| '_ \| '_ \ / _ \/ __| __| |/ _ \| '_ \ 
+  //                                               _   _
+  //                                              | | (_)
+  // _ __   ___     ___ ___  _ __  _ __   ___  ___| |_ _  ___  _ __
+  //| '_ \ / _ \   / __/ _ \| '_ \| '_ \ / _ \/ __| __| |/ _ \| '_ \
   //| | | | (_) | | (_| (_) | | | | | | |  __/ (__| |_| | (_) | | | |
   //|_| |_|\___/   \___\___/|_| |_|_| |_|\___|\___|\__|_|\___/|_| |_|
-  //                                                                 
+  //
   describe('with no connection', function (){
     it('should fail', function (done){
       Pack.cacheValue({
         connection: {},
         key: keysUsed[1],
         value: 1
-      }).exec({
+      }).switch({
         error: done,
         badConnection: function (){
           return done();
@@ -65,14 +65,14 @@ describe('cacheValue()', function (){
         meta: {
           password: 'qwer1234'
         }
-      }).exec({
+      }).switch({
         error: done,
         success: function (report){
           // Save reference to manager.
           manager = report.manager;
           Pack.getConnection({
             manager: manager
-          }).exec({
+          }).switch({
             error: done,
             success: function (report){
               // Save reference to connection.
@@ -191,7 +191,7 @@ describe('cacheValue()', function (){
         connection: connection,
         key: {},
         value: ''
-      }).exec({
+      }).switch({
         error: function (err){
           done();
         },
@@ -206,7 +206,7 @@ describe('cacheValue()', function (){
         connection: connection,
         key: [],
         value: ''
-      }).exec({
+      }).switch({
         error: function (err){
           done();
         },
@@ -225,7 +225,7 @@ describe('cacheValue()', function (){
         key: keysUsed[1],
         value: 'timedout',
         ttl: 1
-      }).exec({
+      }).switch({
         error: function (err){
           return done(new Error('Expecting `success` exit'));
         },
@@ -235,7 +235,7 @@ describe('cacheValue()', function (){
             Pack.getCachedValue({
               connection: connection,
               key: keysUsed[1]
-            }).exec({
+            }).switch({
               error: done,
               badConnection: function (){
                 return done(new Error('Expecting `succeess` exit'));
@@ -249,7 +249,7 @@ describe('cacheValue()', function (){
                   Pack.getCachedValue({
                     connection: connection,
                     key: keysUsed[1]
-                  }).exec({
+                  }).switch({
                     error: done,
                     badConnection: function (){
                       return done(new Error('Expecting `notFound` exit'));

@@ -34,7 +34,7 @@ describe('destroyCachedValues()', function (){
       meta: {
         auth_pass: 'qwer1234' // use alternative option
       }
-    }).exec({
+    }).switch({
       error: done,
       success: function (report){
         // Save reference to manager.
@@ -42,7 +42,7 @@ describe('destroyCachedValues()', function (){
 
         Pack.getConnection({
           manager: manager
-        }).exec({
+        }).switch({
           error: done,
           success: function (report){
             // Save reference to connection.
@@ -83,7 +83,7 @@ describe('destroyCachedValues()', function (){
           Pack.getCachedValue({
             connection: connection,
             key: 'test1'
-          }).exec({
+          }).switch({
             error: done,
             notFound: function (){
               return done();
@@ -113,14 +113,14 @@ describe('destroyCachedValues()', function (){
           Pack.getCachedValue({
             connection: connection,
             key: 'test1'
-          }).exec({
+          }).switch({
             error: done,
             notFound: function (){
               // Try to get the non existing key from the cache
               Pack.getCachedValue({
                 connection: connection,
                 key: 'nonexistingkey'
-              }).exec({
+              }).switch({
                 error: done,
                 notFound: function (){
                   return done();
@@ -144,7 +144,7 @@ describe('destroyCachedValues()', function (){
       Pack.destroyCachedValues({
         connection: connection,
         keys: 'somekeytodelete'
-      }).exec({
+      }).switch({
         error: function (err){
           return done();
         },
@@ -162,7 +162,7 @@ describe('destroyCachedValues()', function (){
       Pack.destroyCachedValues({
         connection: connection,
         keys: 1
-      }).exec({
+      }).switch({
         error: function (err){
           return done();
         },
@@ -179,7 +179,7 @@ describe('destroyCachedValues()', function (){
       Pack.destroyCachedValues({
         connection: connection,
         keys: {}
-      }).exec({
+      }).switch({
         error: function (err){
           return done();
         },

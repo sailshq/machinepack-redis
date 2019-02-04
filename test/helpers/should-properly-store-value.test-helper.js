@@ -25,13 +25,13 @@ module.exports = function shouldProperlyStoreValue (opts, done){
     key: opts.key,
     value: opts.valueToStore,
     ttl: opts.ttl
-  }).exec({
+  }).switch({
     error: done,
     success: function (report){
       Pack.getCachedValue({
         connection: opts.connection,
         key: opts.key
-      }).exec({
+      }).switch({
         error: done,
         success: function (report){
           if (!_.isEqual(report.value, opts.valueToStore)) {

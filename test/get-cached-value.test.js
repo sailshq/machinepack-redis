@@ -33,7 +33,7 @@ describe('getCachedValue()', function (){
       Pack.getCachedValue({
         connection: {},
         key: keysUsed[1]
-      }).exec({
+      }).switch({
         error: done,
         badConnection: function (){
           return done();
@@ -68,7 +68,7 @@ describe('getCachedValue()', function (){
         meta: {
           password: 'qwer1234'
         }
-      }).exec({
+      }).switch({
         error: done,
         success: function (report){
           // Save reference to manager.
@@ -76,7 +76,7 @@ describe('getCachedValue()', function (){
 
           Pack.getConnection({
             manager: manager
-          }).exec({
+          }).switch({
             error: done,
             success: function (report){
               // Save reference to connection.
@@ -97,7 +97,7 @@ describe('getCachedValue()', function (){
         connection: connection,
         key: keysUsed[0],
         value: 'whatever'
-      }).exec({
+      }).switch({
         error: done,
         success: function (){
           Pack.getCachedValue({
@@ -113,7 +113,7 @@ describe('getCachedValue()', function (){
       Pack.getCachedValue({
         connection: connection,
         key: keysUsed[1]
-      }).exec({
+      }).switch({
         error: done,
         notFound: function (){
           return done();
@@ -131,7 +131,7 @@ describe('getCachedValue()', function (){
         key: keysUsed[0],
         value: 'whatever',
         ttl: 1
-      }).exec({
+      }).switch({
         error: done,
         success: function (){
           setTimeout(
@@ -139,7 +139,7 @@ describe('getCachedValue()', function (){
               Pack.getCachedValue({
                 connection: connection,
                 key: keysUsed[0]
-              }).exec({
+              }).switch({
                 error: done,
                 notFound: function (){
                   return done();

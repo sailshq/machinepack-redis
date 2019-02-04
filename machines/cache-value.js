@@ -35,8 +35,11 @@ module.exports = {
       friendlyName: 'Value',
       description: 'The value to cache.',
       extendedDescription: 'Must be JSON-serializable-- that is, a string, number, boolean, dictionary, array, or `null`.  If a dictionary or array, must contain exclusively JSON-serializable contents.',
-      required: true,
-      example: '*'
+      type: 'json',
+      custom: (value)=>{
+        if (value === undefined) { throw new Error('Cannot cache `undefined`.'); }
+        return true;
+      },
     },
     //
     ttl: {

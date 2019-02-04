@@ -21,14 +21,14 @@ describe('getConnection()', function (){
     it('should connect with a password', function (done){
       Pack.createManager({
         connectionString: 'redis://127.0.0.1:6379'
-      }).exec({
+      }).switch({
         error: done,
         success: function (result){
           // Save reference to manager.
           var manager = result.manager;
           Pack.getConnection({
             manager: manager
-          }).exec({
+          }).switch({
             error: done,
             success: function (){
               done();
@@ -47,12 +47,12 @@ describe('getConnection()', function (){
             return null;
           }
         }
-      }).exec({
+      }).switch({
         error: done,
         success: function (result){
           Pack.getConnection({
             manager: result.manager
-          }).exec({
+          }).switch({
             error: done,
             failed: function (){
               done();
