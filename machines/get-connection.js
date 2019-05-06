@@ -137,7 +137,7 @@ module.exports = {
       }
       // If this is an authentication "info" event (i.e. NO password was supplied),
       // and the `authLater` meta key isn't `true`, bail out immediately.
-      if (err.command === 'INFO' && err.code === 'NOAUTH' && inputs.meta.authLater !== true) {
+      if (err.command === 'INFO' && err.code === 'NOAUTH' && (inputs.meta && inputs.meta.authLater !== true)) {
         client.removeListener('end', onPreConnectionEnd);
         client.removeListener('error', onPreConnectionError);
         // Swallow follow-on errors.
