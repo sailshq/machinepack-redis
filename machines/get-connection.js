@@ -124,7 +124,6 @@ module.exports = {
     // the second argument to `removeListener()`)
     var redisConnectionError;
     function onPreConnectionError (err){
-      console.log('onPreConnectionError: ',err);
       // If this is an authentication error (i.e. bad password), then
       // we won't be getting an `end` event, so we'll bail out immediately.
       if (err.command === 'AUTH' && err.code === 'ERR') {
@@ -138,7 +137,7 @@ module.exports = {
       }
       // If this is an authentication "info" event (i.e. NO password was supplied),
       // and the `authLater` meta key isn't `true`, bail out immediately.
-      if (err.command === 'INFO' && err.code === 'NOAUTH' && !(inputs.meta && inputs.meta.authLater === true)) {
+      if (err.command === 'INFO' && err.code === 'NOAUTH' && (!inputs.meta || inputs.meta.authLater === true)) {
         client.removeListener('end', onPreConnectionEnd);
         client.removeListener('error', onPreConnectionError);
         // Swallow follow-on errors.
