@@ -126,7 +126,7 @@ module.exports = {
     function onPreConnectionError (err){
       // If this is an authentication error (i.e. bad password), then
       // we won't be getting an `end` event, so we'll bail out immediately.
-      if (err.command === 'AUTH' && err.code === 'ERR') {
+      if (err.command === 'AUTH' && err.code === 'WRONGPASS') {
         client.removeListener('end', onPreConnectionEnd);
         client.removeListener('error', onPreConnectionError);
         // Swallow follow-on errors.
