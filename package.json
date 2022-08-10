@@ -26,7 +26,7 @@
   "license": "MIT",
   "dependencies": {
     "@sailshq/lodash": "^3.10.2",
-    "async": "2.0.1",
+    "async": "2.6.4",
     "flaverr": "^1.9.2",
     "machine": "^15.2.2",
     "redis": "3.1.1"
